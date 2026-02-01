@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Check, ArrowRight, ArrowLeft, Building2, User, Globe, CreditCard, School, BookOpen, Loader2, Eye, EyeOff, Zap, Star } from "lucide-react";
 import { onboardingApi } from "@/lib/api";
 import { pricing, planMetadata, formatPrice, PlanType, TierType, BillingType } from "@/lib/pricing";
+import { showToast } from "@/components/ui/Toast";
 
 interface FormData {
     // Step 1: Admin Account
@@ -75,6 +76,8 @@ export default function RegisterPage() {
     const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [customBankName, setCustomBankName] = useState("");
+    const [isCustomBank, setIsCustomBank] = useState(false);
 
     const updateFormData = (field: keyof FormData, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -111,7 +114,8 @@ export default function RegisterPage() {
             else if (!/^[a-z0-9-]+$/.test(formData.subdomain)) newErrors.subdomain = "Subdomain hanya boleh huruf kecil, angka, dan strip";
             else if (subdomainAvailable === false) newErrors.subdomain = "Subdomain sudah digunakan";
         } else if (step === 5) {
-            if (!formData.bankName.trim()) newErrors.bankName = "Nama bank wajib diisi";
+            const bankName = isCustomBank ? customBankName : formData.bankName;
+            if (!bankName.trim()) newErrors.bankName = "Nama bank wajib diisi";
             if (!formData.accountNumber.trim()) newErrors.accountNumber = "Nomor rekening wajib diisi";
             if (!formData.accountHolder.trim()) newErrors.accountHolder = "Nama pemilik rekening wajib diisi";
         }
@@ -181,18 +185,26 @@ export default function RegisterPage() {
                 subdomain: formData.subdomain,
             });
 
+            // Use custom bank name if selected
+            const finalBankName = isCustomBank ? customBankName : formData.bankName;
+
             await onboardingApi.bankAccount({
                 session_id: sessionId,
-                bank_name: formData.bankName,
+                bank_name: finalBankName,
                 account_number: formData.accountNumber,
                 account_holder: formData.accountHolder,
             });
 
             await onboardingApi.confirm({ session_id: sessionId });
-            router.push("/login?registered=true");
-        } catch (error) {
+
+            showToast("Pendaftaran berhasil! Silakan login.", "success");
+            setTimeout(() => {
+                router.push("/login?registered=true");
+            }, 1500);
+        } catch (error: any) {
             console.error("Registration failed", error);
-            alert("Pendaftaran gagal. Silakan coba lagi.");
+            const errorMessage = error?.response?.data?.error || error?.message || "Pendaftaran gagal. Silakan coba lagi.";
+            showToast(errorMessage, "error");
         } finally {
             setLoading(false);
         }
@@ -554,25 +566,71 @@ export default function RegisterPage() {
         <div className="space-y-4">
             <h2 className="text-xl font-semibold text-white mb-4">Rekening Bank</h2>
             <p className="text-slate-400 text-sm">Rekening untuk penerimaan pembayaran {formData.planType === "sekolah" ? "SPP" : formData.planType === "pesantren" ? "Syahriah" : "SPP/Syahriah"}</p>
+
             <div>
                 <label className="block text-sm text-slate-400 mb-1">Nama Bank</label>
-                <select
-                    value={formData.bankName}
-                    onChange={(e) => updateFormData("bankName", e.target.value)}
-                    className={`w-full bg-slate-800 border ${errors.bankName ? 'border-red-500' : 'border-slate-700'} rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500`}
-                >
-                    <option value="">Pilih Bank</option>
-                    <option value="BCA">BCA</option>
-                    <option value="Mandiri">Mandiri</option>
-                    <option value="BNI">BNI</option>
-                    <option value="BRI">BRI</option>
-                    <option value="BSI">BSI</option>
-                    <option value="CIMB">CIMB Niaga</option>
-                    <option value="Permata">Permata</option>
-                    <option value="Danamon">Danamon</option>
-                </select>
+
+                {!isCustomBank ? (
+                    <>
+                        <select
+                            value={formData.bankName}
+                            onChange={(e) => {
+                                if (e.target.value === "custom") {
+                                    setIsCustomBank(true);
+                                    updateFormData("bankName", "");
+                                } else {
+                                    updateFormData("bankName", e.target.value);
+                                }
+                            }}
+                            className={`w-full bg-slate-800 border ${errors.bankName ? 'border-red-500' : 'border-slate-700'} rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500`}
+                        >
+                            <option value="">Pilih Bank</option>
+                            <option value="BCA">BCA</option>
+                            <option value="Mandiri">Mandiri</option>
+                            <option value="BNI">BNI</option>
+                            <option value="BRI">BRI</option>
+                            <option value="BSI">BSI (Bank Syariah Indonesia)</option>
+                            <option value="CIMB">CIMB Niaga</option>
+                            <option value="Permata">Permata</option>
+                            <option value="Danamon">Danamon</option>
+                            <option value="BTN">BTN</option>
+                            <option value="Muamalat">Muamalat</option>
+                            <option value="BCA Syariah">BCA Syariah</option>
+                            <option value="Mandiri Syariah">Mandiri Syariah</option>
+                            <option value="BRI Syariah">BRI Syariah</option>
+                            <option value="BNI Syariah">BNI Syariah</option>
+                            <option value="custom" className="text-emerald-400">✏️ Input Manual (Bank Lain)</option>
+                        </select>
+                        <p className="text-xs text-slate-500 mt-1">Bank tidak ada di list? Pilih "Input Manual"</p>
+                    </>
+                ) : (
+                    <>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={customBankName}
+                                onChange={(e) => setCustomBankName(e.target.value)}
+                                className={`flex-1 bg-slate-800 border ${errors.bankName ? 'border-red-500' : 'border-slate-700'} rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500`}
+                                placeholder="Contoh: Bank Jatim, Bank DKI, dll"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setIsCustomBank(false);
+                                    setCustomBankName("");
+                                }}
+                                className="px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+                            >
+                                Batal
+                            </button>
+                        </div>
+                        <p className="text-xs text-emerald-400 mt-1">Masukkan nama bank secara manual</p>
+                    </>
+                )}
+
                 {errors.bankName && <p className="text-red-500 text-sm mt-1">{errors.bankName}</p>}
             </div>
+
             <div>
                 <label className="block text-sm text-slate-400 mb-1">Nomor Rekening</label>
                 <input

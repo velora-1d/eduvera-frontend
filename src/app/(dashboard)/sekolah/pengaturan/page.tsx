@@ -19,10 +19,10 @@ export default function PengaturanSekolahPage() {
         setIsSaving(true);
         try {
             await new Promise(resolve => setTimeout(resolve, 1000));
-            alert("Pengaturan berhasil disimpan!");
+            showToast("Pengaturan berhasil disimpan!", "success");
         } catch (error) {
             console.error("Failed to save settings", error);
-            alert("Gagal menyimpan pengaturan");
+            showToast("Gagal menyimpan pengaturan", "error");
         } finally {
             setIsSaving(false);
         }

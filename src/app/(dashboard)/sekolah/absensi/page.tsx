@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Calendar, Check, X, Clock, Users, Download, Save, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { sekolahApi, exportApi } from "@/lib/api";
 import Modal from "@/components/ui/Modal";
+import { showToast } from "@/components/ui/Toast";
 
 interface Student {
     id: string;
@@ -93,10 +94,10 @@ export default function AbsensiPage() {
         try {
             const records = Object.values(attendance);
             await sekolahApi.saveAttendance?.(selectedDate, selectedKelas, records);
-            alert("Absensi berhasil disimpan!");
+            showToast("Absensi berhasil disimpan!", "success");
         } catch (error) {
             console.error("Failed to save", error);
-            alert("Gagal menyimpan absensi");
+            showToast("Gagal menyimpan absensi", "error");
         } finally {
             setSaving(false);
         }

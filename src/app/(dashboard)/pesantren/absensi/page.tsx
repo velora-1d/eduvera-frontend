@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Calendar, Check, X, Clock, Users, Download, Save, Loader2, ChevronLeft, ChevronRight, Home, BookOpen } from "lucide-react";
 import Modal from "@/components/ui/Modal";
+import { showToast } from "@/components/ui/Toast";
 
 interface Santri {
     id: string;
@@ -86,9 +87,9 @@ export default function AbsensiPesantrenPage() {
         setSaving(true);
         try {
             await new Promise(r => setTimeout(r, 1000));
-            alert("Absensi berhasil disimpan!");
+            showToast("Absensi berhasil disimpan!", "success");
         } catch (error) {
-            alert("Gagal menyimpan absensi");
+            showToast("Gagal menyimpan absensi", "error");
         } finally {
             setSaving(false);
         }

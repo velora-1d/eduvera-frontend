@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Calendar, Plus, ChevronLeft, ChevronRight, Loader2, Pencil, Trash2, X } from "lucide-react";
 import Modal from "@/components/ui/Modal";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 interface CalendarEvent {
     id: string;
@@ -24,6 +25,7 @@ const MONTHS = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", 
 const DAYS = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
 
 export default function KalenderPage() {
+    const { confirm, ConfirmDialogComponent } = useConfirm();
     const [currentDate, setCurrentDate] = useState(new Date());
     const [events, setEvents] = useState<CalendarEvent[]>([]);
     const [loading, setLoading] = useState(true);
@@ -116,10 +118,10 @@ export default function KalenderPage() {
     };
 
     const handleDelete = async (id: string) => {
-        if (confirm("Yakin ingin menghapus event ini?")) {
+        confirm("Yakin ingin menghapus event ini?", () => {
             setEvents(events.filter((e) => e.id !== id));
             setIsDetailModalOpen(false);
-        }
+        });
     };
 
     const { firstDay, daysInMonth } = getDaysInMonth(currentDate);
@@ -400,6 +402,8 @@ export default function KalenderPage() {
                     </div>
                 )}
             </Modal>
+
+            <ConfirmDialogComponent />
         </div>
     );
 }

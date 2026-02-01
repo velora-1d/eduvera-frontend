@@ -5,6 +5,7 @@ import { CreditCard, CheckCircle2, Clock, AlertTriangle, Wallet, Loader2, Receip
 import { pesantrenApi } from "@/lib/api";
 import FilterPanel, { FilterConfig } from "@/components/ui/FilterPanel";
 import Modal from "@/components/ui/Modal";
+import { showToast } from "@/components/ui/Toast";
 
 declare global {
     interface Window {
@@ -194,7 +195,7 @@ export default function SyahriahPaymentPage() {
                         setIsPayModalOpen(false);
                     },
                     onError: () => {
-                        alert("Pembayaran gagal. Silakan coba lagi.");
+                        showToast("Pembayaran gagal. Silakan coba lagi.", "error");
                     },
                     onClose: () => { },
                 });
@@ -205,7 +206,8 @@ export default function SyahriahPaymentPage() {
                 setIsPayModalOpen(false);
                 setIsUpgradeModalOpen(true);
             } else {
-                alert("Gagal memulai pembayaran. " + (error?.userMessage || ""));
+                const errorMsg = error?.userMessage || error?.message || "Gagal memulai pembayaran";
+                showToast(errorMsg, "error");
             }
         } finally {
             setPayingId(null);
@@ -235,12 +237,13 @@ export default function SyahriahPaymentPage() {
                 proof_url: manualPayment.proof_url,
             });
 
-            alert("Pembayaran berhasil dicatat!");
+            showToast("Pembayaran berhasil dicatat!", "success");
             setIsManualPayModalOpen(false);
             loadData();
         } catch (error: any) {
             console.error("Failed to record payment", error);
-            alert("Gagal mencatat pembayaran. " + (error?.userMessage || ""));
+            const errorMsg = error?.userMessage || error?.message || "Gagal mencatat pembayaran";
+            showToast(errorMsg, "error");
         } finally {
             setPayingId(null);
         }
@@ -391,8 +394,8 @@ export default function SyahriahPaymentPage() {
                                                             <button
                                                                 onClick={() => handlePayClick(bill)}
                                                                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${isPremium
-                                                                        ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                                                                        : "bg-slate-800 text-slate-500 cursor-not-allowed"
+                                                                    ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                                                                    : "bg-slate-800 text-slate-500 cursor-not-allowed"
                                                                     }`}
                                                                 title={!isPremium ? "Upgrade ke Premium untuk Payment Gateway" : ""}
                                                             >
@@ -612,8 +615,8 @@ export default function SyahriahPaymentPage() {
                                         handlePayClick(selectedBill);
                                     }}
                                     className={`flex-1 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${isPremium
-                                            ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                                            : "bg-slate-800 text-slate-500"
+                                        ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                                        : "bg-slate-800 text-slate-500"
                                         }`}
                                 >
                                     <CreditCard className="w-5 h-5" />

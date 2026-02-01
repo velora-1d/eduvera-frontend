@@ -6,6 +6,7 @@ import { ownerApi } from "@/lib/api";
 import FilterPanel, { FilterConfig } from "@/components/ui/FilterPanel";
 import DateRangePicker from "@/components/ui/DateRangePicker";
 import Modal from "@/components/ui/Modal";
+import { showToast } from "@/components/ui/Toast";
 
 interface Disbursement {
     id: string;
@@ -137,7 +138,7 @@ export default function DisbursementsPage() {
             loadDisbursements();
         } catch (error) {
             console.error(`Failed to ${actionType}`, error);
-            alert(`Failed to ${actionType} disbursement`);
+            showToast(`Failed to ${actionType} disbursement`, "error");
         }
     };
 

@@ -20,10 +20,10 @@ export default function SettingsPage() {
         try {
             // TODO: Implement save logic with content API
             await new Promise(resolve => setTimeout(resolve, 1000));
-            alert("Settings saved successfully!");
+            showToast("Settings saved successfully!", "success");
         } catch (error) {
             console.error("Failed to save settings", error);
-            alert("Failed to save settings");
+            showToast("Failed to save settings", "error");
         } finally {
             setIsSaving(false);
         }

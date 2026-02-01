@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { showToast } from "./Toast";
 import { Download, FileSpreadsheet, FileText, Archive, Loader2, Check } from "lucide-react";
 import Modal from "./Modal";
 
@@ -77,9 +78,10 @@ export default function BulkExport({ tenantType = "sekolah" }: BulkExportProps) 
 
             setIsOpen(false);
             setSelectedItems([]);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Export failed:", error);
-            alert("Export gagal. Silakan coba lagi.");
+            const errorMsg = error?.response?.data?.error || error?.message || "Export gagal. Silakan coba lagi.";
+            showToast(errorMsg, "error");
         } finally {
             setIsExporting(false);
             setProgress(0);
@@ -110,8 +112,8 @@ export default function BulkExport({ tenantType = "sekolah" }: BulkExportProps) 
                             <button
                                 onClick={() => setFormat("xlsx")}
                                 className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border transition-colors ${format === "xlsx"
-                                        ? "border-emerald-500 bg-emerald-500/10 text-emerald-400"
-                                        : "border-slate-700 text-slate-400 hover:border-slate-600"
+                                    ? "border-emerald-500 bg-emerald-500/10 text-emerald-400"
+                                    : "border-slate-700 text-slate-400 hover:border-slate-600"
                                     }`}
                             >
                                 <FileSpreadsheet size={20} />
@@ -120,8 +122,8 @@ export default function BulkExport({ tenantType = "sekolah" }: BulkExportProps) 
                             <button
                                 onClick={() => setFormat("pdf")}
                                 className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border transition-colors ${format === "pdf"
-                                        ? "border-red-500 bg-red-500/10 text-red-400"
-                                        : "border-slate-700 text-slate-400 hover:border-slate-600"
+                                    ? "border-red-500 bg-red-500/10 text-red-400"
+                                    : "border-slate-700 text-slate-400 hover:border-slate-600"
                                     }`}
                             >
                                 <FileText size={20} />
@@ -152,8 +154,8 @@ export default function BulkExport({ tenantType = "sekolah" }: BulkExportProps) 
                                         onClick={() => handleToggleItem(option.id)}
                                         disabled={isExporting}
                                         className={`flex items-start gap-3 p-4 rounded-xl border text-left transition-colors ${isSelected
-                                                ? "border-blue-500 bg-blue-500/10"
-                                                : "border-slate-700 hover:border-slate-600"
+                                            ? "border-blue-500 bg-blue-500/10"
+                                            : "border-slate-700 hover:border-slate-600"
                                             }`}
                                     >
                                         <div className={`p-2 rounded-lg ${isSelected ? "bg-blue-500/20" : "bg-slate-800"}`}>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Calendar, Plus, Clock, Pencil, Trash2, Loader2, Save } from "lucide-react";
 import Modal from "@/components/ui/Modal";
+import { showToast } from "@/components/ui/Toast";
 
 interface ScheduleItem {
     id: string;
@@ -146,10 +147,10 @@ export default function JadwalPage() {
         try {
             // TODO: API call to save schedule
             await new Promise((resolve) => setTimeout(resolve, 1000));
-            alert("Jadwal berhasil disimpan!");
+            showToast("Jadwal berhasil disimpan!", "success");
         } catch (error) {
             console.error("Failed to save", error);
-            alert("Gagal menyimpan jadwal");
+            showToast("Gagal menyimpan jadwal", "error");
         } finally {
             setSaving(false);
         }
