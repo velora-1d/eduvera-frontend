@@ -683,11 +683,6 @@ export default function RegisterPage() {
                         )}
                     </div>
                 </div>
-
-                <p className="text-center text-sm text-slate-400 mt-6">
-                    Sudah punya akun?{" "}
-                    <Link href="/login" className="text-emerald-500 hover:underline">Masuk di sini</Link>
-                </p>
             </div>
         </div>
     );
