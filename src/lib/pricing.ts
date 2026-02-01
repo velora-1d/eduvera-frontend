@@ -16,37 +16,40 @@ export interface PlanPricing {
 }
 
 // Pricing data matching database (pricing_plans table)
-// Max price: Rp 6.999.999
+// STRUKTUR HARGA BARU - Feb 2026
+// Anchor: Premium Hybrid Annual @ Rp 6.999.999
 export const pricing: Record<PlanType, PlanPricing> = {
     sekolah: {
-        basic: { monthly: 499000, annual: 4990000 },
-        premium: { monthly: 699000, annual: 6999999 },
+        basic: { monthly: 299000, annual: 2999000 },
+        premium: { monthly: 499000, annual: 4999000 },
     },
     pesantren: {
-        basic: { monthly: 499000, annual: 4990000 },
-        premium: { monthly: 699000, annual: 6999999 },
+        basic: { monthly: 299000, annual: 2999000 },
+        premium: { monthly: 499000, annual: 4999000 },
     },
     hybrid: {
-        basic: { monthly: 599000, annual: 5990000 },
-        premium: { monthly: 699000, annual: 6999999 },
+        basic: { monthly: 449000, annual: 4499000 },
+        premium: { monthly: 699000, annual: 6999999 }, // FLAGSHIP
     },
 };
 
 // Original prices for showing "hemat" (savings)
+// Mark-up ~40% dari harga jual
 export const originalPricing: Record<PlanType, PlanPricing> = {
     sekolah: {
-        basic: { monthly: 799000, annual: 9600000 },
-        premium: { monthly: 1499000, annual: 15990000 },
+        basic: { monthly: 499000, annual: 4990000 },
+        premium: { monthly: 799000, annual: 7990000 },
     },
     pesantren: {
-        basic: { monthly: 799000, annual: 9600000 },
-        premium: { monthly: 1499000, annual: 15990000 },
+        basic: { monthly: 499000, annual: 4990000 },
+        premium: { monthly: 799000, annual: 7990000 },
     },
     hybrid: {
-        basic: { monthly: 1199000, annual: 11880000 },
-        premium: { monthly: 2199000, annual: 23990000 },
+        basic: { monthly: 699000, annual: 6990000 },
+        premium: { monthly: 999000, annual: 9990000 },
     },
 };
+
 
 // Plan metadata
 export const planMetadata = {
