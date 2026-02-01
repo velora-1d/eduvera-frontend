@@ -24,6 +24,7 @@ interface FormData {
     institutionName: string;      // Primary name / Yayasan name
     schoolName: string;           // For hybrid: specific school name
     pesantrenName: string;        // For hybrid: specific pesantren name
+    schoolJenjangs: string[];     // Multi-select: TK, SD, MI, SMP, MTs, SMA, MA, SMK
     address: string;
 
     // Step 4: Subdomain
@@ -47,6 +48,7 @@ const initialFormData: FormData = {
     institutionName: "",
     schoolName: "",
     pesantrenName: "",
+    schoolJenjangs: [],
     address: "",
     subdomain: "",
     bankName: "",
@@ -100,6 +102,10 @@ export default function RegisterPage() {
         } else if (step === 3) {
             if (!formData.institutionName.trim()) newErrors.institutionName = "Nama lembaga wajib diisi";
             if (!formData.address.trim()) newErrors.address = "Alamat wajib diisi";
+            if ((formData.planType === "sekolah" || formData.planType === "hybrid") && formData.schoolJenjangs.length === 0) {
+                // @ts -ignore - we'll add schoolJenjangs error
+                (newErrors as Record<string, string>).schoolJenjangs = "Pilih minimal satu jenjang sekolah";
+            }
         } else if (step === 4) {
             if (!formData.subdomain.trim()) newErrors.subdomain = "Subdomain wajib diisi";
             else if (!/^[a-z0-9-]+$/.test(formData.subdomain)) newErrors.subdomain = "Subdomain hanya boleh huruf kecil, angka, dan strip";
@@ -162,6 +168,7 @@ export default function RegisterPage() {
                 institution_name: formData.institutionName,
                 school_name: formData.schoolName || undefined,
                 pesantren_name: formData.pesantrenName || undefined,
+                school_jenjangs: formData.schoolJenjangs.length > 0 ? formData.schoolJenjangs : undefined,
                 institution_type: formData.planType,
                 plan_type: formData.planType,
                 subscription_tier: formData.subscriptionTier,
@@ -455,6 +462,53 @@ export default function RegisterPage() {
                         placeholder="Contoh: Pondok Pesantren Nurul Iman"
                     />
                     <p className="text-xs text-slate-500 mt-1">Kosongkan jika nama pesantren sama dengan nama yayasan</p>
+                </div>
+            )}
+
+            {/* Multi-select Jenjang Sekolah */}
+            {(formData.planType === "sekolah" || formData.planType === "hybrid") && (
+                <div>
+                    <label className="block text-sm text-slate-400 mb-2">
+                        Jenjang Sekolah <span className="text-red-400">*</span>
+                    </label>
+                    <p className="text-xs text-slate-500 mb-3">Pilih jenjang yang ada di lembaga Anda (bisa lebih dari satu)</p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        {[
+                            { id: "TK", label: "TK / PAUD", icon: "🎒" },
+                            { id: "SD", label: "SD", icon: "📚" },
+                            { id: "MI", label: "MI", icon: "🕌" },
+                            { id: "SMP", label: "SMP", icon: "🎓" },
+                            { id: "MTs", label: "MTs", icon: "🕋" },
+                            { id: "SMA", label: "SMA", icon: "🏫" },
+                            { id: "MA", label: "MA", icon: "☪️" },
+                            { id: "SMK", label: "SMK", icon: "⚙️" },
+                        ].map((jenjang) => {
+                            const isSelected = formData.schoolJenjangs.includes(jenjang.id);
+                            return (
+                                <button
+                                    key={jenjang.id}
+                                    type="button"
+                                    onClick={() => {
+                                        const updated = isSelected
+                                            ? formData.schoolJenjangs.filter(j => j !== jenjang.id)
+                                            : [...formData.schoolJenjangs, jenjang.id];
+                                        setFormData(prev => ({ ...prev, schoolJenjangs: updated }));
+                                    }}
+                                    className={`flex items-center gap-2 p-3 rounded-lg border transition-all text-left ${isSelected
+                                        ? "bg-emerald-500/10 border-emerald-500 text-emerald-400"
+                                        : "bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-600"
+                                        }`}
+                                >
+                                    <span className="text-lg">{jenjang.icon}</span>
+                                    <span className="text-sm font-medium">{jenjang.label}</span>
+                                    {isSelected && <Check className="w-4 h-4 ml-auto" />}
+                                </button>
+                            );
+                        })}
+                    </div>
+                    {(errors as Record<string, string>).schoolJenjangs && (
+                        <p className="text-red-500 text-sm mt-2">{(errors as Record<string, string>).schoolJenjangs}</p>
+                    )}
                 </div>
             )}
 
