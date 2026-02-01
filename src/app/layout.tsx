@@ -16,7 +16,15 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "EduVera - Sistem Manajemen Pendidikan",
   description: "Platform digital untuk manajemen sekolah dan pesantren modern",
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
+  },
 };
+
 
 export default function RootLayout({
   children,
