@@ -18,12 +18,13 @@ export const metadata: Metadata = {
   description: "Platform digital untuk manajemen sekolah dan pesantren modern",
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: '32x32' },
+      { url: '/logo.png', type: 'image/png' },
     ],
-    shortcut: '/favicon.ico',
-    apple: '/favicon.ico',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
   },
 };
+
 
 
 export default function RootLayout({
