@@ -1,14 +1,78 @@
 "use client";
 
 import { useState } from "react";
-import { Wallet, TrendingUp, TrendingDown, Receipt, Plus, Search, Download, FileText, DollarSign, Loader2 } from "lucide-react";
+import { Wallet, TrendingUp, TrendingDown, Receipt, Plus, Download, FileText, DollarSign, Loader2, Eye, Pencil } from "lucide-react";
 import { exportApi } from "@/lib/api";
+import FilterPanel, { FilterConfig } from "@/components/ui/FilterPanel";
+import DateRangePicker from "@/components/ui/DateRangePicker";
+import Modal from "@/components/ui/Modal";
+
+// Filter configuration
+const filterConfig: FilterConfig[] = [
+    {
+        key: "search",
+        label: "Cari",
+        type: "search",
+        placeholder: "Cari nama atau NIS...",
+    },
+    {
+        key: "status",
+        label: "Status Bayar",
+        type: "select",
+        options: [
+            { value: "lunas", label: "Lunas" },
+            { value: "belum", label: "Belum Bayar" },
+            { value: "cicil", label: "Cicilan" },
+        ],
+    },
+    {
+        key: "kelas",
+        label: "Kelas",
+        type: "select",
+        options: [
+            { value: "XII IPA 1", label: "XII IPA 1" },
+            { value: "XII IPA 2", label: "XII IPA 2" },
+            { value: "XII IPS 1", label: "XII IPS 1" },
+            { value: "XII IPS 2", label: "XII IPS 2" },
+        ],
+    },
+    {
+        key: "bulan",
+        label: "Bulan",
+        type: "select",
+        options: [
+            { value: "januari", label: "Januari" },
+            { value: "februari", label: "Februari" },
+            { value: "maret", label: "Maret" },
+            { value: "april", label: "April" },
+            { value: "mei", label: "Mei" },
+            { value: "juni", label: "Juni" },
+        ],
+    },
+];
+
+const initialFilters = {
+    search: "",
+    status: "all",
+    kelas: "all",
+    bulan: "all",
+};
+
+interface DateRange {
+    from: Date | null;
+    to: Date | null;
+}
 
 export default function KeuanganPage() {
     const [activeTab, setActiveTab] = useState("spp");
-    const [searchTerm, setSearchTerm] = useState("");
-    const [selectedBulan, setSelectedBulan] = useState("januari");
+    const [filters, setFilters] = useState<Record<string, string | string[]>>(initialFilters);
+    const [dateRange, setDateRange] = useState<DateRange>({ from: null, to: null });
     const [exporting, setExporting] = useState(false);
+
+    // Modals
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [selectedItem, setSelectedItem] = useState<typeof sppList[0] | null>(null);
 
     const handleExport = async (format: "pdf" | "xlsx") => {
         setExporting(true);
@@ -53,9 +117,37 @@ export default function KeuanganPage() {
         return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(num);
     };
 
+    const handleFilterChange = (key: string, value: string | string[]) => {
+        setFilters((prev) => ({ ...prev, [key]: value }));
+    };
+
+    const handleFilterReset = () => {
+        setFilters(initialFilters);
+        setDateRange({ from: null, to: null });
+    };
+
+    // Apply filters
+    const filteredSpp = sppList.filter((item) => {
+        const searchMatch =
+            filters.search === "" ||
+            item.nama.toLowerCase().includes((filters.search as string).toLowerCase()) ||
+            item.nis.includes(filters.search as string);
+        const statusMatch = filters.status === "all" || item.status.toLowerCase() === filters.status;
+        const kelasMatch = filters.kelas === "all" || item.kelas === filters.kelas;
+        const bulanMatch = filters.bulan === "all" || item.bulan.toLowerCase() === filters.bulan;
+
+        return searchMatch && statusMatch && kelasMatch && bulanMatch;
+    });
+
+    const handleViewDetail = (item: typeof sppList[0]) => {
+        setSelectedItem(item);
+        setIsDetailModalOpen(true);
+    };
+
     return (
         <div className="p-8">
-            <div className="max-w-7xl mx-auto space-y-8">
+            <div className="max-w-7xl mx-auto space-y-6">
+                {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
                         <h2 className="text-2xl font-bold text-white">Keuangan Sekolah</h2>
@@ -78,12 +170,16 @@ export default function KeuanganPage() {
                             {exporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
                             Excel
                         </button>
-                        <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium">
+                        <button
+                            onClick={() => setIsAddModalOpen(true)}
+                            className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium"
+                        >
                             <Plus size={16} /> Transaksi Baru
                         </button>
                     </div>
                 </div>
 
+                {/* Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
                         <div className="flex items-center gap-3">
@@ -125,81 +221,103 @@ export default function KeuanganPage() {
                             </div>
                             <div>
                                 <div className="text-slate-400 text-sm">SPP Terbayar</div>
-                                <div className="text-xl font-bold text-white">85%</div>
+                                <div className="text-xl font-bold text-white">
+                                    {sppList.filter(s => s.status === "Lunas").length}/{sppList.length}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="flex gap-4 items-center flex-wrap">
-                    <div className="flex gap-2 border-b border-slate-800 flex-1">
-                        {tabs.map((tab) => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${activeTab === tab.id
+                {/* Tabs */}
+                <div className="flex gap-2 border-b border-slate-800">
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${activeTab === tab.id
                                     ? "text-blue-500 border-blue-500"
                                     : "text-slate-400 border-transparent hover:text-white"
-                                    }`}
-                            >
-                                <tab.icon size={16} />
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
-                    <select
-                        value={selectedBulan}
-                        onChange={(e) => setSelectedBulan(e.target.value)}
-                        className="bg-slate-900 border border-slate-800 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
-                    >
-                        <option value="januari">Januari 2025</option>
-                        <option value="februari">Februari 2025</option>
-                        <option value="maret">Maret 2025</option>
-                    </select>
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                        <input
-                            type="text"
-                            placeholder="Cari..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="bg-slate-900 border border-slate-800 rounded-lg pl-10 pr-4 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
-                        />
-                    </div>
+                                }`}
+                        >
+                            <tab.icon size={16} />
+                            {tab.label}
+                        </button>
+                    ))}
                 </div>
 
+                {/* Filter Panel with DateRangePicker */}
+                <FilterPanel
+                    filters={filterConfig}
+                    values={filters}
+                    onChange={handleFilterChange}
+                    onReset={handleFilterReset}
+                >
+                    <DateRangePicker
+                        value={dateRange}
+                        onChange={setDateRange}
+                        placeholder="Filter tanggal"
+                    />
+                </FilterPanel>
+
+                {/* Content */}
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
                     {activeTab === "spp" && (
-                        <table className="w-full text-left text-sm">
-                            <thead>
-                                <tr className="border-b border-slate-800 text-slate-400">
-                                    <th className="px-6 py-4 font-medium">NIS</th>
-                                    <th className="px-6 py-4 font-medium">Nama Siswa</th>
-                                    <th className="px-6 py-4 font-medium">Kelas</th>
-                                    <th className="px-6 py-4 font-medium">Bulan</th>
-                                    <th className="px-6 py-4 font-medium">Nominal</th>
-                                    <th className="px-6 py-4 font-medium">Status</th>
-                                    <th className="px-6 py-4 font-medium">Tanggal Bayar</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-800">
-                                {sppList.map((item) => (
-                                    <tr key={item.id} className="hover:bg-slate-800/50">
-                                        <td className="px-6 py-4 text-slate-300">{item.nis}</td>
-                                        <td className="px-6 py-4 font-medium text-white">{item.nama}</td>
-                                        <td className="px-6 py-4 text-slate-300">{item.kelas}</td>
-                                        <td className="px-6 py-4 text-slate-300">{item.bulan}</td>
-                                        <td className="px-6 py-4 text-slate-300">{formatRupiah(item.nominal)}</td>
-                                        <td className="px-6 py-4">
-                                            <span className={`px-2 py-1 rounded text-xs ${item.status === "Lunas" ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500"}`}>
-                                                {item.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-slate-300">{item.tanggal}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <>
+                            {filteredSpp.length === 0 ? (
+                                <div className="text-center py-12 text-slate-400">
+                                    Tidak ada data yang ditemukan
+                                </div>
+                            ) : (
+                                <table className="w-full text-left text-sm">
+                                    <thead>
+                                        <tr className="border-b border-slate-800 text-slate-400">
+                                            <th className="px-6 py-4 font-medium">NIS</th>
+                                            <th className="px-6 py-4 font-medium">Nama Siswa</th>
+                                            <th className="px-6 py-4 font-medium">Kelas</th>
+                                            <th className="px-6 py-4 font-medium">Bulan</th>
+                                            <th className="px-6 py-4 font-medium">Nominal</th>
+                                            <th className="px-6 py-4 font-medium">Status</th>
+                                            <th className="px-6 py-4 font-medium">Tanggal</th>
+                                            <th className="px-6 py-4 font-medium text-right">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-800">
+                                        {filteredSpp.map((item) => (
+                                            <tr key={item.id} className="hover:bg-slate-800/50">
+                                                <td className="px-6 py-4 text-slate-300">{item.nis}</td>
+                                                <td className="px-6 py-4 font-medium text-white">{item.nama}</td>
+                                                <td className="px-6 py-4 text-slate-300">{item.kelas}</td>
+                                                <td className="px-6 py-4 text-slate-300">{item.bulan}</td>
+                                                <td className="px-6 py-4 text-slate-300">{formatRupiah(item.nominal)}</td>
+                                                <td className="px-6 py-4">
+                                                    <span className={`px-2 py-1 rounded text-xs ${item.status === "Lunas"
+                                                            ? "bg-emerald-500/10 text-emerald-500"
+                                                            : "bg-red-500/10 text-red-500"
+                                                        }`}>
+                                                        {item.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-slate-300">{item.tanggal}</td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button
+                                                            onClick={() => handleViewDetail(item)}
+                                                            className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
+                                                        >
+                                                            <Eye className="w-4 h-4 text-slate-400" />
+                                                        </button>
+                                                        <button className="p-2 hover:bg-slate-700 rounded-lg transition-colors">
+                                                            <Pencil className="w-4 h-4 text-slate-400" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                        </>
                     )}
                     {activeTab === "pengeluaran" && (
                         <table className="w-full text-left text-sm">
@@ -234,6 +352,104 @@ export default function KeuanganPage() {
                     )}
                 </div>
             </div>
+
+            {/* Add Transaction Modal */}
+            <Modal
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                title="Transaksi Baru"
+                size="md"
+                footer={
+                    <>
+                        <button
+                            onClick={() => setIsAddModalOpen(false)}
+                            className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+                        >
+                            Batal
+                        </button>
+                        <button className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors">
+                            Simpan
+                        </button>
+                    </>
+                }
+            >
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-1">Tipe Transaksi</label>
+                        <select className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-blue-500">
+                            <option value="">Pilih tipe</option>
+                            <option value="spp">Pembayaran SPP</option>
+                            <option value="pemasukan">Pemasukan Lainnya</option>
+                            <option value="pengeluaran">Pengeluaran</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-1">Nominal</label>
+                        <input
+                            type="number"
+                            className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                            placeholder="Masukkan nominal"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-1">Keterangan</label>
+                        <textarea
+                            className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                            placeholder="Keterangan transaksi"
+                            rows={3}
+                        />
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Detail Modal */}
+            <Modal
+                isOpen={isDetailModalOpen}
+                onClose={() => setIsDetailModalOpen(false)}
+                title="Detail Pembayaran"
+                size="md"
+            >
+                {selectedItem && (
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <div className="text-slate-400 text-sm">Nama</div>
+                                <div className="text-white font-medium">{selectedItem.nama}</div>
+                            </div>
+                            <div>
+                                <div className="text-slate-400 text-sm">NIS</div>
+                                <div className="text-white font-medium">{selectedItem.nis}</div>
+                            </div>
+                            <div>
+                                <div className="text-slate-400 text-sm">Kelas</div>
+                                <div className="text-white font-medium">{selectedItem.kelas}</div>
+                            </div>
+                            <div>
+                                <div className="text-slate-400 text-sm">Bulan</div>
+                                <div className="text-white font-medium">{selectedItem.bulan}</div>
+                            </div>
+                            <div>
+                                <div className="text-slate-400 text-sm">Nominal</div>
+                                <div className="text-white font-medium">{formatRupiah(selectedItem.nominal)}</div>
+                            </div>
+                            <div>
+                                <div className="text-slate-400 text-sm">Status</div>
+                                <span className={`inline-block px-2 py-1 rounded text-xs ${selectedItem.status === "Lunas"
+                                        ? "bg-emerald-500/10 text-emerald-500"
+                                        : "bg-red-500/10 text-red-500"
+                                    }`}>
+                                    {selectedItem.status}
+                                </span>
+                            </div>
+                        </div>
+                        {selectedItem.status === "Belum" && (
+                            <button className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors">
+                                Konfirmasi Pembayaran
+                            </button>
+                        )}
+                    </div>
+                )}
+            </Modal>
         </div>
     );
 }
