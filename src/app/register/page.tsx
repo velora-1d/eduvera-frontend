@@ -21,7 +21,9 @@ interface FormData {
     billingCycle: BillingType;
 
     // Step 3: Institution Info
-    institutionName: string;
+    institutionName: string;      // Primary name / Yayasan name
+    schoolName: string;           // For hybrid: specific school name
+    pesantrenName: string;        // For hybrid: specific pesantren name
     address: string;
 
     // Step 4: Subdomain
@@ -43,6 +45,8 @@ const initialFormData: FormData = {
     subscriptionTier: "basic",
     billingCycle: "monthly",
     institutionName: "",
+    schoolName: "",
+    pesantrenName: "",
     address: "",
     subdomain: "",
     bankName: "",
@@ -156,6 +160,8 @@ export default function RegisterPage() {
             await onboardingApi.institution({
                 session_id: sessionId,
                 institution_name: formData.institutionName,
+                school_name: formData.schoolName || undefined,
+                pesantren_name: formData.pesantrenName || undefined,
                 institution_type: formData.planType,
                 plan_type: formData.planType,
                 subscription_tier: formData.subscriptionTier,
@@ -402,17 +408,57 @@ export default function RegisterPage() {
     const renderStep3 = () => (
         <div className="space-y-4">
             <h2 className="text-xl font-semibold text-white mb-4">Informasi Lembaga</h2>
+
+            {/* Nama Lembaga / Yayasan */}
             <div>
-                <label className="block text-sm text-slate-400 mb-1">Nama {formData.planType === "sekolah" ? "Sekolah" : formData.planType === "pesantren" ? "Pesantren" : "Lembaga"}</label>
+                <label className="block text-sm text-slate-400 mb-1">
+                    {formData.planType === "hybrid" ? "Nama Yayasan / Lembaga Induk" : formData.planType === "sekolah" ? "Nama Sekolah" : "Nama Pesantren"}
+                </label>
                 <input
                     type="text"
                     value={formData.institutionName}
                     onChange={(e) => updateFormData("institutionName", e.target.value)}
                     className={`w-full bg-slate-800 border ${errors.institutionName ? 'border-red-500' : 'border-slate-700'} rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500`}
-                    placeholder={formData.planType === "sekolah" ? "SMA Negeri 1 Jakarta" : formData.planType === "pesantren" ? "Pondok Pesantren Al-Hikmah" : "Nama Lembaga"}
+                    placeholder={formData.planType === "hybrid" ? "Yayasan Al-Hikmah" : formData.planType === "sekolah" ? "SMA Negeri 1 Jakarta" : "Pondok Pesantren Al-Hikmah"}
                 />
                 {errors.institutionName && <p className="text-red-500 text-sm mt-1">{errors.institutionName}</p>}
             </div>
+
+            {/* Hybrid: Nama Sekolah (Opsional) */}
+            {formData.planType === "hybrid" && (
+                <div>
+                    <label className="block text-sm text-slate-400 mb-1">
+                        Nama Sekolah <span className="text-slate-500">(opsional, jika berbeda dari yayasan)</span>
+                    </label>
+                    <input
+                        type="text"
+                        value={formData.schoolName}
+                        onChange={(e) => updateFormData("schoolName", e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500"
+                        placeholder="Contoh: SMA Terpadu Al-Hikmah"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">Kosongkan jika nama sekolah sama dengan nama yayasan</p>
+                </div>
+            )}
+
+            {/* Hybrid: Nama Pesantren (Opsional) */}
+            {formData.planType === "hybrid" && (
+                <div>
+                    <label className="block text-sm text-slate-400 mb-1">
+                        Nama Pesantren <span className="text-slate-500">(opsional, jika berbeda dari yayasan)</span>
+                    </label>
+                    <input
+                        type="text"
+                        value={formData.pesantrenName}
+                        onChange={(e) => updateFormData("pesantrenName", e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500"
+                        placeholder="Contoh: Pondok Pesantren Nurul Iman"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">Kosongkan jika nama pesantren sama dengan nama yayasan</p>
+                </div>
+            )}
+
+            {/* Alamat */}
             <div>
                 <label className="block text-sm text-slate-400 mb-1">Alamat Lengkap</label>
                 <textarea

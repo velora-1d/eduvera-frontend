@@ -16,18 +16,19 @@ export interface PlanPricing {
 }
 
 // Pricing data matching database (pricing_plans table)
+// Max price: Rp 6.999.999
 export const pricing: Record<PlanType, PlanPricing> = {
     sekolah: {
         basic: { monthly: 499000, annual: 4990000 },
-        premium: { monthly: 999000, annual: 9990000 },
+        premium: { monthly: 699000, annual: 6999999 },
     },
     pesantren: {
         basic: { monthly: 499000, annual: 4990000 },
-        premium: { monthly: 999000, annual: 9990000 },
+        premium: { monthly: 699000, annual: 6999999 },
     },
     hybrid: {
-        basic: { monthly: 799000, annual: 7990000 },
-        premium: { monthly: 1599000, annual: 15990000 },
+        basic: { monthly: 599000, annual: 5990000 },
+        premium: { monthly: 699000, annual: 6999999 },
     },
 };
 
