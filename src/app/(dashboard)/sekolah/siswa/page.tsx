@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Users, Plus, Loader2, Download, Eye, Pencil, Trash2 } from "lucide-react";
 import { sekolahApi, exportApi } from "@/lib/api";
 import FilterPanel, { FilterConfig } from "@/components/ui/FilterPanel";
@@ -177,12 +178,12 @@ export default function SiswaPage() {
                             {exporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
                             Excel
                         </button>
-                        <button
-                            onClick={() => setIsAddModalOpen(true)}
+                        <Link
+                            href="/sekolah/siswa/tambah"
                             className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium"
                         >
                             <Plus size={16} /> Tambah Siswa
-                        </button>
+                        </Link>
                     </div>
                 </div>
 
@@ -262,8 +263,8 @@ export default function SiswaPage() {
                                         <td className="px-6 py-4 text-slate-300">{siswa.kelas}</td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2 py-1 rounded text-xs ${siswa.status === 'Aktif'
-                                                    ? 'bg-emerald-500/10 text-emerald-500'
-                                                    : 'bg-amber-500/10 text-amber-500'
+                                                ? 'bg-emerald-500/10 text-emerald-500'
+                                                : 'bg-amber-500/10 text-amber-500'
                                                 }`}>
                                                 {siswa.status}
                                             </span>
@@ -396,8 +397,8 @@ export default function SiswaPage() {
                             <div>
                                 <div className="text-slate-400 text-sm">Status</div>
                                 <span className={`inline-block px-2 py-1 rounded text-xs ${selectedSiswa.status === 'Aktif'
-                                        ? 'bg-emerald-500/10 text-emerald-500'
-                                        : 'bg-amber-500/10 text-amber-500'
+                                    ? 'bg-emerald-500/10 text-emerald-500'
+                                    : 'bg-amber-500/10 text-amber-500'
                                     }`}>
                                     {selectedSiswa.status}
                                 </span>

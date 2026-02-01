@@ -252,6 +252,18 @@ export const pesantrenApi = {
         const response = await api.post(`/api/v1/pesantren/spp/${id}/confirm`);
         return response.data;
     },
+
+    // Profil
+    getProfil: async () => {
+        const response = await api.get("/api/v1/pesantren/profil");
+        return response.data;
+    },
+
+    // Syahriah (Monthly fee) - Online payment (Premium only)
+    createSyahriahPayment: async (data: any) => {
+        const response = await api.post("/api/v1/payment/syahriah/create", data);
+        return response.data;
+    },
 };
 
 // ============ Sekolah API ============
@@ -437,6 +449,39 @@ export const sekolahApi = {
         const response = await api.get("/api/v1/sekolah/dashboard/analytics");
         return response.data;
     },
+
+    // === Attendance/Absensi ===
+    getAttendance: async (date: string, kelas: string) => {
+        const response = await api.get(`/api/v1/sekolah/attendance?date=${date}&kelas=${kelas}`);
+        return response.data;
+    },
+
+    saveAttendance: async (date: string, kelas: string, records: any[]) => {
+        const response = await api.post("/api/v1/sekolah/attendance", { date, kelas, records });
+        return response.data;
+    },
+
+    // === SPP ===
+    getSPPList: async () => {
+        const response = await api.get("/api/v1/sekolah/spp");
+        return response.data;
+    },
+
+    getSPPStats: async () => {
+        const response = await api.get("/api/v1/sekolah/spp/stats");
+        return response.data;
+    },
+
+    createSPPPayment: async (data: any) => {
+        const response = await api.post("/api/v1/payment/spp/create", data);
+        return response.data;
+    },
+
+    // Manual payment (available for all tiers)
+    recordSPPPayment: async (id: string, data: any) => {
+        const response = await api.post(`/api/v1/sekolah/spp/${id}/pay`, data);
+        return response.data;
+    },
 };
 
 // ============ Export API ============
@@ -450,6 +495,13 @@ export const exportApi = {
 
     exportPayments: async (format: "pdf" | "xlsx" = "pdf") => {
         const response = await api.get(`/api/v1/export/payments?format=${format}`, {
+            responseType: "blob",
+        });
+        return response.data;
+    },
+
+    exportAttendance: async (kelas: string, month: string, format: "pdf" | "xlsx" = "pdf") => {
+        const response = await api.get(`/api/v1/export/attendance?kelas=${kelas}&month=${month}&format=${format}`, {
             responseType: "blob",
         });
         return response.data;

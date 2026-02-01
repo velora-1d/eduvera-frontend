@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Users, Plus, Loader2, Eye, Pencil, Trash2, Home, BookOpen } from "lucide-react";
 import { sekolahApi } from "@/lib/api";
 import FilterPanel, { FilterConfig } from "@/components/ui/FilterPanel";
@@ -141,12 +142,12 @@ export default function SantriPage() {
                         <h2 className="text-2xl font-bold text-white">Data Santri</h2>
                         <p className="text-slate-400">Kelola data seluruh santri pesantren</p>
                     </div>
-                    <button
-                        onClick={() => setIsAddModalOpen(true)}
+                    <Link
+                        href="/pesantren/data/tambah"
                         className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium"
                     >
                         <Plus size={16} /> Tambah Santri
-                    </button>
+                    </Link>
                 </div>
 
                 {/* Filter Panel */}
@@ -240,8 +241,8 @@ export default function SantriPage() {
                                         <td className="px-6 py-4 text-slate-300">{santri.kamar || "-"}</td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2 py-1 rounded text-xs ${santri.status === 'Aktif'
-                                                    ? 'bg-emerald-500/10 text-emerald-500'
-                                                    : 'bg-amber-500/10 text-amber-500'
+                                                ? 'bg-emerald-500/10 text-emerald-500'
+                                                : 'bg-amber-500/10 text-amber-500'
                                                 }`}>
                                                 {santri.status}
                                             </span>
@@ -373,8 +374,8 @@ export default function SantriPage() {
                             <div>
                                 <div className="text-slate-400 text-sm">Status</div>
                                 <span className={`inline-block px-2 py-1 rounded text-xs ${selectedSantri.status === 'Aktif'
-                                        ? 'bg-emerald-500/10 text-emerald-500'
-                                        : 'bg-amber-500/10 text-amber-500'
+                                    ? 'bg-emerald-500/10 text-emerald-500'
+                                    : 'bg-amber-500/10 text-amber-500'
                                     }`}>
                                     {selectedSantri.status}
                                 </span>
