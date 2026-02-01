@@ -122,6 +122,16 @@ export const authApi = {
     logout: async (): Promise<void> => {
         await api.post("/api/v1/auth/logout");
     },
+
+    forgotPassword: async (email: string): Promise<{ message: string }> => {
+        const response = await api.post("/api/v1/auth/forgot-password", { email });
+        return response.data;
+    },
+
+    resetPassword: async (token: string, password: string): Promise<{ message: string }> => {
+        const response = await api.post("/api/v1/auth/reset-password", { token, password });
+        return response.data;
+    },
 };
 
 // ============ Owner API ============
@@ -419,6 +429,29 @@ export const sekolahApi = {
     // === Laporan ===
     getReportData: async () => {
         const response = await api.get("/api/v1/sekolah/laporan");
+        return response.data;
+    },
+
+    // === Analytics ===
+    getAnalytics: async () => {
+        const response = await api.get("/api/v1/sekolah/dashboard/analytics");
+        return response.data;
+    },
+};
+
+// ============ Export API ============
+export const exportApi = {
+    exportStudents: async (format: "pdf" | "xlsx" = "pdf") => {
+        const response = await api.get(`/api/v1/export/students?format=${format}`, {
+            responseType: "blob",
+        });
+        return response.data;
+    },
+
+    exportPayments: async (format: "pdf" | "xlsx" = "pdf") => {
+        const response = await api.get(`/api/v1/export/payments?format=${format}`, {
+            responseType: "blob",
+        });
         return response.data;
     },
 };

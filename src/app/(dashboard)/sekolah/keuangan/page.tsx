@@ -1,12 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import { Wallet, TrendingUp, TrendingDown, Receipt, Plus, Search, Download, FileText, DollarSign } from "lucide-react";
+import { Wallet, TrendingUp, TrendingDown, Receipt, Plus, Search, Download, FileText, DollarSign, Loader2 } from "lucide-react";
+import { exportApi } from "@/lib/api";
 
 export default function KeuanganPage() {
     const [activeTab, setActiveTab] = useState("spp");
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedBulan, setSelectedBulan] = useState("januari");
+    const [exporting, setExporting] = useState(false);
+
+    const handleExport = async (format: "pdf" | "xlsx") => {
+        setExporting(true);
+        try {
+            const blob = await exportApi.exportPayments(format);
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `laporan_keuangan.${format}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Failed to export", error);
+        } finally {
+            setExporting(false);
+        }
+    };
 
     const [sppList] = useState([
         { id: 1, nis: "12345", nama: "Ahmad Fauzi", kelas: "XII IPA 1", bulan: "Januari", nominal: 500000, status: "Lunas", tanggal: "05 Jan 2025" },
@@ -41,8 +62,21 @@ export default function KeuanganPage() {
                         <p className="text-slate-400">Kelola SPP, pemasukan, dan pengeluaran</p>
                     </div>
                     <div className="flex gap-2">
-                        <button className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-medium">
-                            <Download size={16} /> Export
+                        <button
+                            onClick={() => handleExport("pdf")}
+                            disabled={exporting}
+                            className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium disabled:opacity-50"
+                        >
+                            {exporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                            PDF
+                        </button>
+                        <button
+                            onClick={() => handleExport("xlsx")}
+                            disabled={exporting}
+                            className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium disabled:opacity-50"
+                        >
+                            {exporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                            Excel
                         </button>
                         <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium">
                             <Plus size={16} /> Transaksi Baru

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Users, BookOpen, GraduationCap, Calendar, Bell, ArrowRight } from "lucide-react";
 import { sekolahApi } from "@/lib/api";
+import AnalyticsCharts from "@/components/dashboard/AnalyticsCharts";
 
 interface StatCardProps {
     title: string;
@@ -106,13 +107,8 @@ export default function SekolahDashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Main Content */}
                 <div className="lg:col-span-2 space-y-8">
-                    {/* Recent Activity placeholder */}
-                    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-                        <h3 className="text-lg font-semibold text-white mb-4">Jadwal Hari Ini</h3>
-                        <div className="text-slate-400 text-sm">
-                            <p>Tidak ada jadwal khusus hari ini.</p>
-                        </div>
-                    </div>
+                    {/* Analytics Charts */}
+                    <AnalyticsCharts />
                 </div>
 
                 {/* Notifications */}

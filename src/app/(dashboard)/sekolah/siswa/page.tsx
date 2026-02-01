@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Users, Plus, Filter, Loader2 } from "lucide-react";
-import { sekolahApi } from "@/lib/api";
+import { Search, Users, Plus, Filter, Loader2, Download } from "lucide-react";
+import { sekolahApi, exportApi } from "@/lib/api";
 
 interface Siswa {
     id: string | number;
@@ -16,6 +16,26 @@ export default function SiswaPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [siswaList, setSiswaList] = useState<Siswa[]>([]);
     const [loading, setLoading] = useState(true);
+    const [exporting, setExporting] = useState(false);
+
+    const handleExport = async (format: "pdf" | "xlsx") => {
+        setExporting(true);
+        try {
+            const blob = await exportApi.exportStudents(format);
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `laporan_siswa.${format}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Failed to export", error);
+        } finally {
+            setExporting(false);
+        }
+    };
 
     useEffect(() => {
         const fetchSiswa = async () => {
@@ -48,9 +68,29 @@ export default function SiswaPage() {
                         <h2 className="text-2xl font-bold text-white">Data Siswa</h2>
                         <p className="text-slate-400">Kelola data seluruh siswa sekolah</p>
                     </div>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium">
-                        <Plus size={16} /> Tambah Siswa
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <div className="relative">
+                            <button
+                                onClick={() => handleExport("pdf")}
+                                disabled={exporting}
+                                className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium disabled:opacity-50"
+                            >
+                                {exporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                                PDF
+                            </button>
+                        </div>
+                        <button
+                            onClick={() => handleExport("xlsx")}
+                            disabled={exporting}
+                            className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium disabled:opacity-50"
+                        >
+                            {exporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                            Excel
+                        </button>
+                        <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium">
+                            <Plus size={16} /> Tambah Siswa
+                        </button>
+                    </div>
                 </div>
 
                 <div className="flex gap-4">
