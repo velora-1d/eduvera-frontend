@@ -159,9 +159,9 @@ export default function RegisterPage() {
         setLoading(true);
         try {
             const registerRes = await onboardingApi.register({
-                admin_name: formData.adminName,
-                admin_email: formData.adminEmail,
-                admin_whatsapp: formData.adminWhatsApp,
+                name: formData.adminName,
+                email: formData.adminEmail,
+                whatsapp: formData.adminWhatsApp,
                 password: formData.password,
             });
 
