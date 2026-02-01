@@ -5,10 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Check, ArrowRight, ArrowLeft, Building2, User, Globe, CreditCard, School, BookOpen, Loader2, Eye, EyeOff, Zap, Star } from "lucide-react";
 import { onboardingApi } from "@/lib/api";
-
-type PlanType = "sekolah" | "pesantren" | "hybrid";
-type TierType = "basic" | "premium";
-type BillingType = "monthly" | "annual";
+import { pricing, planMetadata, formatPrice, PlanType, TierType, BillingType } from "@/lib/pricing";
 
 interface FormData {
     // Step 1: Admin Account
@@ -61,16 +58,6 @@ const steps = [
     { id: 5, title: "Rekening Bank", icon: CreditCard },
 ];
 
-// Harga sesuai database
-const pricing = {
-    sekolah: { basic: { monthly: 499000, annual: 4990000 }, premium: { monthly: 999000, annual: 9990000 } },
-    pesantren: { basic: { monthly: 499000, annual: 4990000 }, premium: { monthly: 999000, annual: 9990000 } },
-    hybrid: { basic: { monthly: 799000, annual: 7990000 }, premium: { monthly: 1599000, annual: 15990000 } },
-};
-
-const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(price);
-};
 
 export default function RegisterPage() {
     const router = useRouter();
