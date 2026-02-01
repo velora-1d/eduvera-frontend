@@ -298,10 +298,10 @@ export default function RegisterPage() {
                 <label className="block text-sm text-slate-400 mb-3">Jenis Lembaga</label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {([
-                        { id: "sekolah", title: "Sekolah", desc: "SD, SMP, SMA, SMK", icon: School, color: "blue", payment: "SPP" },
-                        { id: "pesantren", title: "Pesantren", desc: "Pondok & Madrasah", icon: BookOpen, color: "emerald", payment: "Syahriah" },
-                        { id: "hybrid", title: "Hybrid", desc: "Sekolah + Pesantren", icon: Building2, color: "purple", payment: "SPP & Syahriah", recommended: true },
-                    ] as const).map((plan) => (
+                        { id: "sekolah" as const, title: "Sekolah", desc: "SD, SMP, SMA, SMK", icon: School, color: "blue", payment: "SPP", recommended: false },
+                        { id: "pesantren" as const, title: "Pesantren", desc: "Pondok & Madrasah", icon: BookOpen, color: "emerald", payment: "Syahriah", recommended: false },
+                        { id: "hybrid" as const, title: "Hybrid", desc: "Sekolah + Pesantren", icon: Building2, color: "purple", payment: "SPP & Syahriah", recommended: true },
+                    ]).map((plan) => (
                         <button
                             key={plan.id}
                             type="button"
