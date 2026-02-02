@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Save, Eye, EyeOff, Globe, Mail, Key } from "lucide-react";
+import { showToast } from "@/components/ui/Toast";
 
 export default function SettingsPage() {
     const [isSaving, setIsSaving] = useState(false);
