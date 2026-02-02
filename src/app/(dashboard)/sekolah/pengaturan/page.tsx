@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Save, Building2, Globe, Users, Shield } from "lucide-react";
+import { showToast } from "@/components/ui/Toast";
 
 export default function PengaturanSekolahPage() {
     const [isSaving, setIsSaving] = useState(false);
