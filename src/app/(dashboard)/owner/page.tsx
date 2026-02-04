@@ -17,8 +17,10 @@ export default function OwnerDashboard() {
     const [tenants, setTenants] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
         loadData();
     }, []);
 
@@ -88,7 +90,7 @@ export default function OwnerDashboard() {
                 <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-white">Dashboard Overview</h2>
                     <div className="text-slate-400 text-sm">
-                        Last updated: {new Date().toLocaleTimeString()}
+                        Last updated: {mounted ? new Date().toLocaleTimeString() : "--:--:--"}
                     </div>
                 </div>
 
@@ -219,7 +221,7 @@ export default function OwnerDashboard() {
                                                 )}
                                             </td>
                                             <td className="px-6 py-4 text-slate-400">
-                                                {new Date(tenant.created_at).toLocaleDateString()}
+                                                {mounted && tenant.created_at ? new Date(tenant.created_at).toLocaleDateString() : "---"}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <a
