@@ -81,9 +81,11 @@ export default function DisbursementsPage() {
         setIsLoading(true);
         try {
             const res = await ownerApi.getDisbursements();
-            setDisbursements((res as any).data || res || []);
+            const data = (res as any)?.data || res;
+            setDisbursements(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error("Failed to load disbursements", error);
+            setDisbursements([]);
         } finally {
             setIsLoading(false);
         }
@@ -98,8 +100,11 @@ export default function DisbursementsPage() {
         setDateRange({ from: null, to: null });
     };
 
+    // GUARD: Ensure disbursements is always array
+    const safeDisbursements = Array.isArray(disbursements) ? disbursements : [];
+
     // Apply filters
-    const filteredDisbursements = disbursements.filter((d) => {
+    const filteredDisbursements = safeDisbursements.filter((d) => {
         const searchMatch =
             filters.search === "" ||
             d.tenant_name.toLowerCase().includes((filters.search as string).toLowerCase());
@@ -149,9 +154,9 @@ export default function DisbursementsPage() {
         }).format(amount || 0);
     };
 
-    const pendingCount = disbursements.filter(d => d.status === 'pending').length;
-    const completedCount = disbursements.filter(d => d.status === 'completed').length;
-    const totalAmount = disbursements.reduce((sum, d) => sum + (d.amount || 0), 0);
+    const pendingCount = safeDisbursements.filter(d => d.status === 'pending').length;
+    const completedCount = safeDisbursements.filter(d => d.status === 'completed').length;
+    const totalAmount = safeDisbursements.reduce((sum, d) => sum + (d.amount || 0), 0);
 
     return (
         <div className="p-8">
@@ -185,7 +190,7 @@ export default function DisbursementsPage() {
                             </div>
                             <div>
                                 <div className="text-slate-400 text-sm">Total Requests</div>
-                                <div className="text-xl font-bold text-white">{disbursements.length}</div>
+                                <div className="text-xl font-bold text-white">{safeDisbursements.length}</div>
                             </div>
                         </div>
                     </div>
@@ -398,8 +403,8 @@ export default function DisbursementsPage() {
                         <button
                             onClick={handleConfirmAction}
                             className={`px-6 py-2 rounded-lg font-medium transition-colors ${actionType === 'approve'
-                                    ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
-                                    : 'bg-red-500 hover:bg-red-600 text-white'
+                                ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                                : 'bg-red-500 hover:bg-red-600 text-white'
                                 }`}
                         >
                             Confirm {actionType === 'approve' ? 'Approve' : 'Reject'}
@@ -410,8 +415,8 @@ export default function DisbursementsPage() {
                 {selectedDisbursement && (
                     <div className="space-y-4">
                         <div className={`flex items-center gap-3 p-4 rounded-xl ${actionType === 'approve'
-                                ? 'bg-emerald-500/10 border border-emerald-500/30'
-                                : 'bg-red-500/10 border border-red-500/30'
+                            ? 'bg-emerald-500/10 border border-emerald-500/30'
+                            : 'bg-red-500/10 border border-red-500/30'
                             }`}>
                             <AlertTriangle className={`w-6 h-6 ${actionType === 'approve' ? 'text-emerald-400' : 'text-red-400'}`} />
                             <div className="text-white">

@@ -26,13 +26,18 @@ export default function NotificationsPage() {
     const loadNotifications = async () => {
         try {
             const res = await ownerApi.getNotifications();
-            setNotifications((res as any).data || res || []);
+            const data = (res as any)?.data || res;
+            setNotifications(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error("Failed to load notifications", error);
+            setNotifications([]);
         } finally {
             setIsLoading(false);
         }
     };
+
+    // GUARD: Ensure notifications is always array
+    const safeNotifications = Array.isArray(notifications) ? notifications : [];
 
     return (
         <div className="p-8">
@@ -50,8 +55,8 @@ export default function NotificationsPage() {
                             key={type}
                             onClick={() => setFilter(type)}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === type
-                                    ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/30"
-                                    : "bg-slate-900 text-slate-400 border border-slate-800 hover:text-white"
+                                ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/30"
+                                : "bg-slate-900 text-slate-400 border border-slate-800 hover:text-white"
                                 }`}
                         >
                             {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -68,7 +73,7 @@ export default function NotificationsPage() {
                             </div>
                             <div>
                                 <div className="text-slate-400 text-sm">Total Sent</div>
-                                <div className="text-xl font-bold text-white">{notifications.length}</div>
+                                <div className="text-xl font-bold text-white">{safeNotifications.length}</div>
                             </div>
                         </div>
                     </div>
@@ -80,7 +85,7 @@ export default function NotificationsPage() {
                             <div>
                                 <div className="text-slate-400 text-sm">Telegram</div>
                                 <div className="text-xl font-bold text-white">
-                                    {notifications.filter(n => n.type === 'telegram').length}
+                                    {safeNotifications.filter(n => n.type === 'telegram').length}
                                 </div>
                             </div>
                         </div>
@@ -108,12 +113,12 @@ export default function NotificationsPage() {
                             <div className="px-6 py-8 text-center text-slate-500">
                                 Loading...
                             </div>
-                        ) : notifications.length === 0 ? (
+                        ) : safeNotifications.length === 0 ? (
                             <div className="px-6 py-8 text-center text-slate-500">
                                 No notifications yet
                             </div>
                         ) : (
-                            notifications
+                            safeNotifications
                                 .filter(n => filter === 'all' || n.type === filter)
                                 .map((notif) => (
                                     <div key={notif.id} className="p-4 hover:bg-slate-800/50 transition-colors">
@@ -136,8 +141,8 @@ export default function NotificationsPage() {
                                                 <div className="flex items-center gap-2 mt-2">
                                                     <span className="text-xs text-slate-500">To: {notif.recipient}</span>
                                                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs ${notif.status === 'sent'
-                                                            ? 'bg-emerald-500/10 text-emerald-500'
-                                                            : 'bg-red-500/10 text-red-500'
+                                                        ? 'bg-emerald-500/10 text-emerald-500'
+                                                        : 'bg-red-500/10 text-red-500'
                                                         }`}>
                                                         {notif.status === 'sent' ? <CheckCircle2 size={10} /> : <XCircle size={10} />}
                                                         {notif.status}

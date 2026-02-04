@@ -78,9 +78,11 @@ export default function SPPTransactionsPage() {
     const loadTransactions = async () => {
         try {
             const res = await ownerApi.getTransactions();
-            setTransactions((res as any).data || res || []);
+            const data = (res as any)?.data || res;
+            setTransactions(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error("Failed to load transactions", error);
+            setTransactions([]);
         } finally {
             setIsLoading(false);
         }
@@ -102,8 +104,11 @@ export default function SPPTransactionsPage() {
         }).format(amount || 0);
     };
 
+    // GUARD: Ensure transactions is always array
+    const safeTransactions = Array.isArray(transactions) ? transactions : [];
+
     // Apply filters
-    const filteredTransactions = transactions.filter((t) => {
+    const filteredTransactions = safeTransactions.filter((t) => {
         const searchMatch =
             filters.search === "" ||
             t.tenant_name?.toLowerCase().includes((filters.search as string).toLowerCase()) ||
@@ -120,9 +125,9 @@ export default function SPPTransactionsPage() {
         return searchMatch && statusMatch && monthMatch && dateMatch;
     });
 
-    const totalVolume = transactions.reduce((sum, t) => sum + (t.amount || 0), 0);
-    const pendingCount = transactions.filter(t => t.status === 'pending').length;
-    const uniqueTenants = new Set(transactions.map(t => t.tenant_name)).size;
+    const totalVolume = safeTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+    const pendingCount = safeTransactions.filter(t => t.status === 'pending').length;
+    const uniqueTenants = new Set(safeTransactions.map(t => t.tenant_name)).size;
 
     const handleViewDetail = (tx: Transaction) => {
         setSelectedTransaction(tx);
@@ -161,7 +166,7 @@ export default function SPPTransactionsPage() {
                             </div>
                             <div>
                                 <div className="text-slate-400 text-sm">Total Transactions</div>
-                                <div className="text-xl font-bold text-white">{transactions.length}</div>
+                                <div className="text-xl font-bold text-white">{safeTransactions.length}</div>
                             </div>
                         </div>
                     </div>

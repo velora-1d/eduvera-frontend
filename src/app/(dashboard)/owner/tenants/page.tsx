@@ -26,9 +26,12 @@ export default function TenantsPage() {
     const loadTenants = async () => {
         try {
             const res = await ownerApi.getTenants();
-            setTenants((res as any).data || res || []);
+            // Defensive: ensure we always get an array
+            const data = (res as any)?.data || res;
+            setTenants(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error("Failed to load tenants", error);
+            setTenants([]);
         } finally {
             setIsLoading(false);
         }
@@ -46,7 +49,9 @@ export default function TenantsPage() {
         }
     };
 
-    const filteredTenants = tenants.filter((t) => {
+    // GUARD: Ensure tenants is always array before calling .filter()
+    const safeTenants = Array.isArray(tenants) ? tenants : [];
+    const filteredTenants = safeTenants.filter((t) => {
         const matchesSearch = t.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             t.subdomain?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter === "all" || t.status === statusFilter;
@@ -90,24 +95,24 @@ export default function TenantsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
                         <div className="text-slate-400 text-sm">Total Tenants</div>
-                        <div className="text-2xl font-bold text-white mt-1">{tenants.length}</div>
+                        <div className="text-2xl font-bold text-white mt-1">{safeTenants.length}</div>
                     </div>
                     <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
                         <div className="text-slate-400 text-sm">Active</div>
                         <div className="text-2xl font-bold text-emerald-500 mt-1">
-                            {tenants.filter(t => t.status === 'active').length}
+                            {safeTenants.filter(t => t.status === 'active').length}
                         </div>
                     </div>
                     <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
                         <div className="text-slate-400 text-sm">Pending</div>
                         <div className="text-2xl font-bold text-amber-500 mt-1">
-                            {tenants.filter(t => t.status === 'pending').length}
+                            {safeTenants.filter(t => t.status === 'pending').length}
                         </div>
                     </div>
                     <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
                         <div className="text-slate-400 text-sm">Suspended</div>
                         <div className="text-2xl font-bold text-red-500 mt-1">
-                            {tenants.filter(t => t.status === 'suspended').length}
+                            {safeTenants.filter(t => t.status === 'suspended').length}
                         </div>
                     </div>
                 </div>
@@ -149,10 +154,10 @@ export default function TenantsPage() {
                                             </td>
                                             <td className="px-6 py-4 capitalize">
                                                 <span className={`inline-flex px-2 py-1 rounded text-xs font-medium border ${tenant.institution_type === 'hybrid'
-                                                        ? 'bg-purple-500/10 text-purple-400 border-purple-500/20'
-                                                        : tenant.institution_type === 'pesantren'
-                                                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                                                            : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                                                    ? 'bg-purple-500/10 text-purple-400 border-purple-500/20'
+                                                    : tenant.institution_type === 'pesantren'
+                                                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                                                        : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
                                                     }`}>
                                                     {tenant.institution_type}
                                                 </span>

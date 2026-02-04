@@ -16,15 +16,19 @@ export default function RegistrationsPage() {
     const loadRegistrations = async () => {
         try {
             const res = await ownerApi.getRegistrations();
-            setRegistrations((res as any).data || res || []);
+            const data = (res as any)?.data || res;
+            setRegistrations(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error("Failed to load registrations", error);
+            setRegistrations([]);
         } finally {
             setIsLoading(false);
         }
     };
 
-    const filteredRegistrations = registrations.filter((r) =>
+    // GUARD: Ensure registrations is always array
+    const safeRegistrations = Array.isArray(registrations) ? registrations : [];
+    const filteredRegistrations = safeRegistrations.filter((r) =>
         r.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         r.subdomain?.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -54,18 +58,18 @@ export default function RegistrationsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
                         <div className="text-slate-400 text-sm">Total Registrations</div>
-                        <div className="text-2xl font-bold text-white mt-1">{registrations.length}</div>
+                        <div className="text-2xl font-bold text-white mt-1">{safeRegistrations.length}</div>
                     </div>
                     <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
                         <div className="text-slate-400 text-sm">Confirmed</div>
                         <div className="text-2xl font-bold text-emerald-500 mt-1">
-                            {registrations.filter(r => r.status === 'active').length}
+                            {safeRegistrations.filter(r => r.status === 'active').length}
                         </div>
                     </div>
                     <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
                         <div className="text-slate-400 text-sm">Pending Payment</div>
                         <div className="text-2xl font-bold text-amber-500 mt-1">
-                            {registrations.filter(r => r.status === 'pending').length}
+                            {safeRegistrations.filter(r => r.status === 'pending').length}
                         </div>
                     </div>
                 </div>
