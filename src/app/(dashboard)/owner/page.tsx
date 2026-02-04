@@ -23,13 +23,35 @@ export default function OwnerDashboard() {
     }, []);
 
     const loadData = async () => {
-        // Load data independently so one failure doesn't block others
+        // Guard: Check token exists before making API calls
+        const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+        if (!token) {
+            console.warn("No access token found, skipping data load");
+            setIsLoading(false);
+            return;
+        }
+
+        // Load tenants with defensive validation
         try {
             const tenantsRes = await ownerApi.getTenants();
-            const data = (tenantsRes as any).data || tenantsRes;
-            setTenants(Array.isArray(data) ? data : []);
+
+            // Triple validation: check response structure
+            if (tenantsRes && typeof tenantsRes === 'object') {
+                const data = (tenantsRes as any).data;
+                if (Array.isArray(data)) {
+                    setTenants(data);
+                } else if (Array.isArray(tenantsRes)) {
+                    setTenants(tenantsRes);
+                } else {
+                    console.warn("Invalid tenants response format:", typeof tenantsRes);
+                    setTenants([]);
+                }
+            } else {
+                setTenants([]);
+            }
         } catch (error) {
             console.error("Failed to load tenants", error);
+            setTenants([]); // Always reset to empty array on error
         }
 
         try {
@@ -44,10 +66,12 @@ export default function OwnerDashboard() {
         setIsLoading(false);
     };
 
-    const filteredTenants = tenants.filter(
+    // GUARD: Ensure tenants is always array before calling .filter()
+    const safeTenants = Array.isArray(tenants) ? tenants : [];
+    const filteredTenants = safeTenants.filter(
         (t) =>
-            t.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            t.subdomain?.toLowerCase().includes(searchTerm.toLowerCase())
+            t?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            t?.subdomain?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const formatCurrency = (amount: number) => {
