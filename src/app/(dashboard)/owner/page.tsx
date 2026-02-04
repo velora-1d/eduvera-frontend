@@ -26,7 +26,8 @@ export default function OwnerDashboard() {
         // Load data independently so one failure doesn't block others
         try {
             const tenantsRes = await ownerApi.getTenants();
-            setTenants((tenantsRes as any).data || tenantsRes || []);
+            const data = (tenantsRes as any).data || tenantsRes;
+            setTenants(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error("Failed to load tenants", error);
         }

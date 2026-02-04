@@ -54,7 +54,8 @@ export function SwitchAccountDropdown({
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
-            setTenants(data.data || []);
+            const list = data.data || data;
+            setTenants(Array.isArray(list) ? list : []);
         } catch (error) {
             console.error("Failed to fetch tenants:", error);
         } finally {

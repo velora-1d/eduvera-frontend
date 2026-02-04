@@ -24,7 +24,7 @@ export function OwnerSidebar() {
         { path: "/owner", icon: LayoutDashboard, label: "Overview" },
         { path: "/owner/tenants", icon: Building2, label: "Tenants" },
         { path: "/owner/registrations", icon: UserPlus, label: "Registrations" },
-        { path: "/owner/spp", icon: Receipt, label: "SPP Transactions" },
+        { path: "/owner/spp-transactions", icon: Receipt, label: "SPP Transactions" },
         { path: "/owner/disbursements", icon: Wallet, label: "Disbursement" },
         { path: "/owner/notifications", icon: Bell, label: "Notifications" },
         { path: "/owner/content", icon: Settings, label: "Content Editor" },
