@@ -1,3 +1,5 @@
+"use client";
+
 import { OwnerSidebar } from "@/components/layouts/OwnerSidebar";
 import { useRequireAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
