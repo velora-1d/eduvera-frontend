@@ -24,7 +24,7 @@ export function SekolahSidebar() {
     const { logout, tenant, user } = useAuth();
 
     // Check if current user is owner (untuk fitur switch dashboard)
-    const isOwner = user?.role === "super_admin" || user?.role === "owner" || localStorage.getItem("is_owner") === "true";
+    const isOwner = user?.role === "super_admin" || user?.role === "owner" || (typeof window !== "undefined" && localStorage.getItem("is_owner") === "true");
 
     const menuItems = [
         { path: "/sekolah", icon: LayoutDashboard, label: "Dashboard" },
