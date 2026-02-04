@@ -43,28 +43,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 return;
             }
 
-            // Check if this is an owner session or impersonation
+            // Check if this is an owner session (owner skips /auth/me)
             const isOwner = localStorage.getItem("is_owner") === "true";
-            const isImpersonating = localStorage.getItem("is_impersonating") === "true";
             const storedUser = localStorage.getItem("auth_user");
 
-            if ((isOwner || isImpersonating) && storedUser) {
-                // For owner/impersonator, load from local storage
+            if (isOwner && storedUser) {
+                // For owner, load from local storage (no /auth/me endpoint for owner)
                 try {
                     const parsedUser = JSON.parse(storedUser);
-
-                    if (isImpersonating) {
-                        const impersonatedTenantStr = localStorage.getItem("impersonate_tenant");
-                        if (impersonatedTenantStr) {
-                            const impersonatedTenant = JSON.parse(impersonatedTenantStr);
-                            // Override user context for impersonation
-                            parsedUser.tenant = impersonatedTenant;
-                            parsedUser.tenant_id = impersonatedTenant.id;
-                            // Keep role as owner, but ensure tenant context is set
-                            // Some components might check role, but usually checking planType (from tenant) is enough
-                        }
-                    }
-
                     setUser(parsedUser);
                     if (parsedUser.tenant) {
                         setTenant(parsedUser.tenant as Tenant);
@@ -113,11 +99,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         if (typeof window !== "undefined") {
             localStorage.removeItem("access_token");
+            localStorage.removeItem("owner_token");
             localStorage.removeItem("is_owner");
             localStorage.removeItem("auth_user");
-            localStorage.removeItem("is_impersonating");
-            localStorage.removeItem("impersonate_token");
-            localStorage.removeItem("impersonate_tenant");
         }
         setUser(null);
         setTenant(null);

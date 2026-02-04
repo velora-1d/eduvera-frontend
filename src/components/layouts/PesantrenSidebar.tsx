@@ -18,10 +18,14 @@ import {
     UserCheck
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { SwitchAccountDropdown } from "@/components/dashboard/SwitchAccountDropdown";
 
 export function PesantrenSidebar() {
     const pathname = usePathname();
-    const { logout, tenant } = useAuth();
+    const { logout, tenant, user } = useAuth();
+
+    // Check if current user is owner (untuk fitur switch dashboard)
+    const isOwner = user?.role === "super_admin" || user?.role === "owner" || localStorage.getItem("is_owner") === "true";
 
     const menuItems = [
         { path: "/pesantren", icon: LayoutDashboard, label: "Dashboard" },
@@ -45,6 +49,11 @@ export function PesantrenSidebar() {
                     Edu<span className="text-emerald-500">Vera</span>
                 </h1>
                 <p className="text-xs text-slate-500 mt-1">{tenant?.name || "Pesantren Dashboard"}</p>
+                {isOwner && (
+                    <div className="mt-4">
+                        <SwitchAccountDropdown currentMode="pesantren" />
+                    </div>
+                )}
             </div>
 
             <nav className="px-4 space-y-1 pb-20">
@@ -55,8 +64,8 @@ export function PesantrenSidebar() {
                             key={item.path}
                             href={item.path}
                             className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${isActive
-                                    ? "bg-emerald-500/10 text-emerald-500"
-                                    : "text-slate-400 hover:text-white hover:bg-slate-800"
+                                ? "bg-emerald-500/10 text-emerald-500"
+                                : "text-slate-400 hover:text-white hover:bg-slate-800"
                                 }`}
                         >
                             <item.icon size={20} />

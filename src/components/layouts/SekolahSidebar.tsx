@@ -17,10 +17,14 @@ import {
     CalendarDays
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { SwitchAccountDropdown } from "@/components/dashboard/SwitchAccountDropdown";
 
 export function SekolahSidebar() {
     const pathname = usePathname();
-    const { logout, tenant } = useAuth();
+    const { logout, tenant, user } = useAuth();
+
+    // Check if current user is owner (untuk fitur switch dashboard)
+    const isOwner = user?.role === "super_admin" || user?.role === "owner" || localStorage.getItem("is_owner") === "true";
 
     const menuItems = [
         { path: "/sekolah", icon: LayoutDashboard, label: "Dashboard" },
@@ -42,6 +46,11 @@ export function SekolahSidebar() {
                     Edu<span className="text-blue-500">Vera</span>
                 </h1>
                 <p className="text-xs text-slate-500 mt-1">{tenant?.name || "Sekolah Dashboard"}</p>
+                {isOwner && (
+                    <div className="mt-4">
+                        <SwitchAccountDropdown currentMode="sekolah" />
+                    </div>
+                )}
             </div>
 
             <nav className="px-4 space-y-1 pb-20">
@@ -52,8 +61,8 @@ export function SekolahSidebar() {
                             key={item.path}
                             href={item.path}
                             className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${isActive
-                                    ? "bg-blue-500/10 text-blue-500"
-                                    : "text-slate-400 hover:text-white hover:bg-slate-800"
+                                ? "bg-blue-500/10 text-blue-500"
+                                : "text-slate-400 hover:text-white hover:bg-slate-800"
                                 }`}
                         >
                             <item.icon size={20} />
