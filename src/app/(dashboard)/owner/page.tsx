@@ -68,20 +68,37 @@ export default function OwnerDashboard() {
         setIsLoading(false);
     };
 
+    const formatCurrency = (amount: any) => {
+        try {
+            const val = Number(amount) || 0;
+            return new Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: "IDR",
+                minimumFractionDigits: 0
+            }).format(val);
+        } catch (e) {
+            return `Rp ${amount || 0}`;
+        }
+    };
+
+    if (!mounted) {
+        return (
+            <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+                <div className="w-8 h-8 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
+            </div>
+        );
+    }
+
     // GUARD: Ensure tenants is always array before calling .filter()
     const safeTenants = Array.isArray(tenants) ? tenants : [];
     const filteredTenants = safeTenants.filter(
-        (t) =>
-            t?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            t?.subdomain?.toLowerCase().includes(searchTerm.toLowerCase())
+        (t) => {
+            const name = (t?.name || "").toLowerCase();
+            const subdomain = (t?.subdomain || "").toLowerCase();
+            const search = (searchTerm || "").toLowerCase();
+            return name.includes(search) || subdomain.includes(search);
+        }
     );
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat("id-ID", {
-            style: "currency",
-            currency: "IDR",
-        }).format(amount);
-    };
 
     return (
         <div className="p-8">
