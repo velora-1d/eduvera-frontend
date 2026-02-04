@@ -163,7 +163,7 @@ export function useRequireAuth(redirectTo = "/login") {
         if (!isLoading && !isAuthenticated) {
             // Save current URL to redirect back after login
             if (typeof window !== "undefined") {
-                sessionStorage.setItem("redirectAfterLogin", pathname);
+                sessionStorage.setItem("redirectAfterLogin", pathname || "");
             }
             router.push(redirectTo);
         }

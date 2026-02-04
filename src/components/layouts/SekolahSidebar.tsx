@@ -49,7 +49,7 @@ export function SekolahSidebar() {
 
             <nav className="px-4 space-y-1 pb-20">
                 {menuItems.map((item) => {
-                    const isActive = pathname === item.path || (item.path !== "/sekolah" && pathname.startsWith(item.path));
+                    const isActive = pathname ? (pathname === item.path || (item.path !== "/sekolah" && pathname.startsWith(item.path))) : false;
                     return (
                         <Link
                             key={item.path}
