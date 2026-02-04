@@ -27,12 +27,13 @@ export default function OwnerLoginPage() {
             const data = response.data;
 
             if (data.token) {
+                // Set both hook state and local storage
                 setToken(data.token);
                 setUser(data.user);
 
                 // Save owner session details manually since owner doesn't have /auth/me
                 if (typeof window !== "undefined") {
-                    localStorage.setItem("owner_token", data.token);
+                    localStorage.setItem("access_token", data.token); // Use consistent key
                     localStorage.setItem("is_owner", "true");
                     localStorage.setItem("auth_user", JSON.stringify(data.user));
                 }

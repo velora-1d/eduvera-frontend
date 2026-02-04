@@ -48,8 +48,19 @@ api.interceptors.response.use(
             case 401:
                 userMessage = userMessage || "Sesi Anda telah berakhir. Silakan login kembali.";
                 if (typeof window !== "undefined") {
-                    localStorage.removeItem("access_token");
-                    window.location.href = "/login";
+                    const pathname = window.location.pathname;
+                    const isOwnerPath = pathname.startsWith("/owner");
+                    const isLoginPage = pathname === "/login" || pathname === "/owner/login";
+
+                    // Only redirect if NOT on a login page already
+                    if (!isLoginPage) {
+                        localStorage.removeItem("access_token");
+                        if (isOwnerPath) {
+                            window.location.href = "/owner/login";
+                        } else {
+                            window.location.href = "/login";
+                        }
+                    }
                 }
                 break;
             case 403:
