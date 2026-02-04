@@ -681,6 +681,11 @@ export const subscriptionApi = {
         return response.data;
     },
 
+    getPricing: async () => {
+        const response = await api.get("/api/v1/subscription/pricing");
+        return response.data;
+    },
+
     calculateUpgrade: async (data: any) => {
         const response = await api.post("/api/v1/subscription/calculate-upgrade", data);
         return response.data;
@@ -775,6 +780,32 @@ export const onboardingApi = {
 
     getStatus: async (id: string) => {
         const response = await api.get(`/api/v1/onboarding/status/${id}`);
+        return response.data;
+    },
+};
+
+// ============ Tenant WhatsApp API (Premium Only) ============
+export const tenantWhatsAppApi = {
+    connect: async () => {
+        const response = await api.post("/api/v1/tenant/whatsapp/connect");
+        return response.data;
+    },
+
+    getStatus: async () => {
+        const response = await api.get("/api/v1/tenant/whatsapp/status");
+        return response.data;
+    },
+
+    disconnect: async () => {
+        const response = await api.post("/api/v1/tenant/whatsapp/disconnect");
+        return response.data;
+    },
+
+    sendTest: async (phone: string, message?: string) => {
+        const response = await api.post("/api/v1/tenant/whatsapp/test", {
+            phone,
+            message: message || "Ini adalah pesan test dari EduVera"
+        });
         return response.data;
     },
 };

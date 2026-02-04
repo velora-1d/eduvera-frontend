@@ -43,8 +43,8 @@ const initialFormData: FormData = {
     adminWhatsApp: "",
     password: "",
     confirmPassword: "",
-    planType: "pesantren",
-    subscriptionTier: "basic",
+    planType: "hybrid",        // Default: Hybrid for trial
+    subscriptionTier: "basic", // Default: Basic (trial)
     billingCycle: "monthly",
     institutionName: "",
     schoolName: "",
@@ -57,12 +57,12 @@ const initialFormData: FormData = {
     accountHolder: "",
 };
 
+// Simplified steps - removed Plan Selection (all users get Hybrid Trial)
 const steps = [
     { id: 1, title: "Akun Admin", icon: User },
-    { id: 2, title: "Pilih Paket", icon: CreditCard },
-    { id: 3, title: "Info Lembaga", icon: Building2 },
-    { id: 4, title: "Subdomain", icon: Globe },
-    { id: 5, title: "Rekening Bank", icon: CreditCard },
+    { id: 2, title: "Info Lembaga", icon: Building2 },
+    { id: 3, title: "Subdomain", icon: Globe },
+    { id: 4, title: "Rekening Bank", icon: CreditCard },
 ];
 
 
@@ -102,18 +102,21 @@ export default function RegisterPage() {
             if (!formData.password) newErrors.password = "Password wajib diisi";
             else if (formData.password.length < 8) newErrors.password = "Password minimal 8 karakter";
             if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Password tidak cocok";
-        } else if (step === 3) {
+        } else if (step === 2) {
+            // Step 2: Institution (was Step 3)
             if (!formData.institutionName.trim()) newErrors.institutionName = "Nama lembaga wajib diisi";
             if (!formData.address.trim()) newErrors.address = "Alamat wajib diisi";
-            if ((formData.planType === "sekolah" || formData.planType === "hybrid") && formData.schoolJenjangs.length === 0) {
-                // @ts -ignore - we'll add schoolJenjangs error
+            // Hybrid always requires school jenjangs selection
+            if (formData.schoolJenjangs.length === 0) {
                 (newErrors as Record<string, string>).schoolJenjangs = "Pilih minimal satu jenjang sekolah";
             }
-        } else if (step === 4) {
+        } else if (step === 3) {
+            // Step 3: Subdomain (was Step 4)
             if (!formData.subdomain.trim()) newErrors.subdomain = "Subdomain wajib diisi";
             else if (!/^[a-z0-9-]+$/.test(formData.subdomain)) newErrors.subdomain = "Subdomain hanya boleh huruf kecil, angka, dan strip";
             else if (subdomainAvailable === false) newErrors.subdomain = "Subdomain sudah digunakan";
-        } else if (step === 5) {
+        } else if (step === 4) {
+            // Step 4: Bank Account (was Step 5)
             const bankName = isCustomBank ? customBankName : formData.bankName;
             if (!bankName.trim()) newErrors.bankName = "Nama bank wajib diisi";
             if (!formData.accountNumber.trim()) newErrors.accountNumber = "Nomor rekening wajib diisi";
@@ -146,7 +149,7 @@ export default function RegisterPage() {
 
     const nextStep = () => {
         if (validateStep(currentStep)) {
-            if (currentStep < 5) setCurrentStep(prev => prev + 1);
+            if (currentStep < 4) setCurrentStep(prev => prev + 1);
         }
     };
 
@@ -683,10 +686,9 @@ export default function RegisterPage() {
     const renderCurrentStep = () => {
         switch (currentStep) {
             case 1: return renderStep1();
-            case 2: return renderStep2();
-            case 3: return renderStep3();
-            case 4: return renderStep4();
-            case 5: return renderStep5();
+            case 2: return renderStep3(); // Institution (was Step 3)
+            case 3: return renderStep4(); // Subdomain (was Step 4)
+            case 4: return renderStep5(); // Bank Account (was Step 5)
             default: return null;
         }
     };
@@ -718,7 +720,7 @@ export default function RegisterPage() {
                             </Link>
                         )}
 
-                        {currentStep < 5 ? (
+                        {currentStep < 4 ? (
                             <button onClick={nextStep} className="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors">
                                 Lanjut <ArrowRight className="w-4 h-4" />
                             </button>

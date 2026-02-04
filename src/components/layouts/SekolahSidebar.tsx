@@ -14,7 +14,9 @@ import {
     LogOut,
     ClipboardList,
     UsersRound,
-    CalendarDays
+    CalendarDays,
+    Zap,
+    MessageCircle
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -36,6 +38,7 @@ export function SekolahSidebar() {
         { path: "/sekolah/keuangan", icon: BadgeDollarSign, label: "Keuangan" },
         { path: "/sekolah/kalender", icon: CalendarDays, label: "Kalender" },
         { path: "/sekolah/pengaturan", icon: Settings, label: "Pengaturan" },
+        { path: "/sekolah/pengaturan/whatsapp", icon: MessageCircle, label: "WhatsApp Sender" },
     ];
 
     return (
@@ -66,7 +69,14 @@ export function SekolahSidebar() {
                 })}
             </nav>
 
-            <div className="fixed bottom-0 left-0 w-64 p-4 bg-slate-900 border-t border-slate-800">
+            <div className="fixed bottom-0 left-0 w-64 p-4 bg-slate-900 border-t border-slate-800 space-y-2">
+                <Link
+                    href="/upgrade"
+                    className="w-full flex items-center gap-3 px-4 py-3 text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 rounded-xl transition-colors"
+                >
+                    <Zap size={20} />
+                    Upgrade
+                </Link>
                 <button
                     onClick={logout}
                     className="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
