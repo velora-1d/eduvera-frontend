@@ -37,7 +37,16 @@ export function SwitchAccountDropdown({ currentMode }: SwitchAccountDropdownProp
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const navigateTo = (path: string) => {
+    const navigateTo = (path: string, sandboxSubdomain?: string) => {
+        if (typeof window !== "undefined") {
+            if (sandboxSubdomain) {
+                // Set sandbox tenant for API requests
+                localStorage.setItem("sandbox_tenant", sandboxSubdomain);
+            } else {
+                // Remove sandbox tenant when going back to owner dashboard
+                localStorage.removeItem("sandbox_tenant");
+            }
+        }
         router.push(path);
         setIsOpen(false);
     };
@@ -61,10 +70,10 @@ export function SwitchAccountDropdown({ currentMode }: SwitchAccountDropdownProp
     };
 
     const dashboardOptions = [
-        { key: "owner", label: "Owner Dashboard", icon: Building2, path: "/owner", color: "red" },
-        { key: "sekolah", label: "Dashboard Sekolah", icon: School, path: "/sekolah", color: "blue" },
-        { key: "pesantren", label: "Dashboard Pesantren", icon: BookOpen, path: "/pesantren", color: "emerald" },
-        { key: "hybrid", label: "Dashboard Hybrid", icon: BookOpen, path: "/hybrid", color: "purple" },
+        { key: "owner", label: "Owner Dashboard", icon: Building2, path: "/owner", color: "red", sandbox: "" },
+        { key: "sekolah", label: "Dashboard Sekolah", icon: School, path: "/sekolah", color: "blue", sandbox: "sandbox-sekolah" },
+        { key: "pesantren", label: "Dashboard Pesantren", icon: BookOpen, path: "/pesantren", color: "emerald", sandbox: "sandbox-pesantren" },
+        { key: "hybrid", label: "Dashboard Hybrid", icon: BookOpen, path: "/hybrid", color: "purple", sandbox: "sandbox-hybrid" },
     ];
 
     return (
@@ -107,7 +116,7 @@ export function SwitchAccountDropdown({ currentMode }: SwitchAccountDropdownProp
                         return (
                             <button
                                 key={option.key}
-                                onClick={() => navigateTo(option.path)}
+                                onClick={() => navigateTo(option.path, option.sandbox)}
                                 className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${isActive
                                     ? `bg-${option.color}-500/10 text-${option.color}-400`
                                     : "text-slate-300 hover:bg-slate-700"

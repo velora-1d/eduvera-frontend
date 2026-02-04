@@ -10,12 +10,19 @@ const api = axios.create({
     },
 });
 
-// Add interceptor to include auth token
+// Add interceptor to include auth token and sandbox tenant header
 api.interceptors.request.use((config) => {
     if (typeof window !== "undefined") {
         const token = localStorage.getItem("access_token");
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        // Owner sandbox mode: include sandbox tenant header
+        const isOwner = localStorage.getItem("is_owner") === "true";
+        const sandboxTenant = localStorage.getItem("sandbox_tenant");
+        if (isOwner && sandboxTenant) {
+            config.headers["X-Sandbox-Tenant"] = sandboxTenant;
         }
     }
     return config;
