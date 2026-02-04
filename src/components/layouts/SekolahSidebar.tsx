@@ -17,7 +17,6 @@ import {
     CalendarDays
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { SwitchAccountDropdown } from "@/components/dashboard/SwitchAccountDropdown";
 
 export function SekolahSidebar() {
     const pathname = usePathname();
@@ -46,11 +45,6 @@ export function SekolahSidebar() {
                     Edu<span className="text-blue-500">Vera</span>
                 </h1>
                 <p className="text-xs text-slate-500 mt-1">{tenant?.name || "Sekolah Dashboard"}</p>
-                {isOwner && (
-                    <div className="mt-4">
-                        <SwitchAccountDropdown currentMode="sekolah" />
-                    </div>
-                )}
             </div>
 
             <nav className="px-4 space-y-1 pb-20">

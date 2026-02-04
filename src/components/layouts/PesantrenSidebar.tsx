@@ -18,7 +18,6 @@ import {
     UserCheck
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { SwitchAccountDropdown } from "@/components/dashboard/SwitchAccountDropdown";
 
 export function PesantrenSidebar() {
     const pathname = usePathname();
@@ -49,11 +48,6 @@ export function PesantrenSidebar() {
                     Edu<span className="text-emerald-500">Vera</span>
                 </h1>
                 <p className="text-xs text-slate-500 mt-1">{tenant?.name || "Pesantren Dashboard"}</p>
-                {isOwner && (
-                    <div className="mt-4">
-                        <SwitchAccountDropdown currentMode="pesantren" />
-                    </div>
-                )}
             </div>
 
             <nav className="px-4 space-y-1 pb-20">
