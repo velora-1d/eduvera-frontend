@@ -35,22 +35,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const refresh = async () => {
         try {
-            const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+            if (typeof window === "undefined") return;
+
+            const token = localStorage.getItem("access_token");
             if (!token) {
                 setIsLoading(false);
                 return;
             }
 
-            const response = await authApi.me();
-            if (response.user) {
-                setUser(response.user);
-                if (response.user.tenant) {
-                    setTenant(response.user.tenant as Tenant);
+            // Check if this is an owner session or impersonation
+            const isOwner = localStorage.getItem("is_owner") === "true";
+            const isImpersonating = localStorage.getItem("is_impersonating") === "true";
+            const storedUser = localStorage.getItem("auth_user");
+
+            if ((isOwner || isImpersonating) && storedUser) {
+                // For owner/impersonator, load from local storage
+                try {
+                    const parsedUser = JSON.parse(storedUser);
+
+                    if (isImpersonating) {
+                        const impersonatedTenantStr = localStorage.getItem("impersonate_tenant");
+                        if (impersonatedTenantStr) {
+                            const impersonatedTenant = JSON.parse(impersonatedTenantStr);
+                            // Override user context for impersonation
+                            parsedUser.tenant = impersonatedTenant;
+                            parsedUser.tenant_id = impersonatedTenant.id;
+                            // Keep role as owner, but ensure tenant context is set
+                            // Some components might check role, but usually checking planType (from tenant) is enough
+                        }
+                    }
+
+                    setUser(parsedUser);
+                    if (parsedUser.tenant) {
+                        setTenant(parsedUser.tenant as Tenant);
+                    }
+                } catch (e) {
+                    // Invalid stored user
+                    localStorage.removeItem("access_token");
+                    localStorage.removeItem("is_owner");
+                    localStorage.removeItem("auth_user");
+                }
+            } else {
+                // Normal user, verify with backend
+                const response = await authApi.me();
+                if (response.user) {
+                    setUser(response.user);
+                    if (response.user.tenant) {
+                        setTenant(response.user.tenant as Tenant);
+                    }
                 }
             }
         } catch {
             if (typeof window !== "undefined") {
                 localStorage.removeItem("access_token");
+                // Don't clear owner flags here blindly, but if auth fails it usually means token invalid
+                // However, for 404 on /auth/me it might be a valid token just wrong endpoint.
+                // But here we only catch if authApi.me() fails.
             }
         } finally {
             setIsLoading(false);
@@ -73,6 +113,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         if (typeof window !== "undefined") {
             localStorage.removeItem("access_token");
+            localStorage.removeItem("is_owner");
+            localStorage.removeItem("auth_user");
+            localStorage.removeItem("is_impersonating");
+            localStorage.removeItem("impersonate_token");
+            localStorage.removeItem("impersonate_tenant");
         }
         setUser(null);
         setTenant(null);

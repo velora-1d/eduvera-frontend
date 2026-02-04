@@ -29,6 +29,14 @@ export default function OwnerLoginPage() {
             if (data.token) {
                 setToken(data.token);
                 setUser(data.user);
+
+                // Save owner session details manually since owner doesn't have /auth/me
+                if (typeof window !== "undefined") {
+                    localStorage.setItem("owner_token", data.token);
+                    localStorage.setItem("is_owner", "true");
+                    localStorage.setItem("auth_user", JSON.stringify(data.user));
+                }
+
                 router.push("/owner");
             }
         } catch (err: any) {

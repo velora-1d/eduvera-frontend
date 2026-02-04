@@ -80,6 +80,7 @@ export function SwitchAccountDropdown({
 
             if (data.impersonate_token) {
                 // Store impersonate token and redirect
+                localStorage.setItem("access_token", data.impersonate_token); // Swap active token
                 localStorage.setItem("impersonate_token", data.impersonate_token);
                 localStorage.setItem("impersonate_tenant", JSON.stringify(data.tenant));
                 localStorage.setItem("is_impersonating", "true");
@@ -100,6 +101,12 @@ export function SwitchAccountDropdown({
     };
 
     const handleBackToOwner = () => {
+        // Restore owner token
+        const ownerToken = localStorage.getItem("owner_token");
+        if (ownerToken) {
+            localStorage.setItem("access_token", ownerToken);
+        }
+
         localStorage.removeItem("impersonate_token");
         localStorage.removeItem("impersonate_tenant");
         localStorage.removeItem("is_impersonating");
@@ -130,8 +137,8 @@ export function SwitchAccountDropdown({
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isImpersonating
-                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                        : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+                    ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                    : "bg-slate-800 text-slate-300 hover:bg-slate-700"
                     }`}
             >
                 {getModeIcon()}
@@ -156,8 +163,8 @@ export function SwitchAccountDropdown({
                     <button
                         onClick={() => { router.push("/owner"); setIsOpen(false); }}
                         className={`w-full flex items-center gap-3 px-4 py-3 text-left ${currentMode === "owner" && !isImpersonating
-                                ? "bg-red-500/10 text-red-400"
-                                : "text-slate-300 hover:bg-slate-700"
+                            ? "bg-red-500/10 text-red-400"
+                            : "text-slate-300 hover:bg-slate-700"
                             }`}
                     >
                         <Building2 size={18} />
