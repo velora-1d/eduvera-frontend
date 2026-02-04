@@ -14,6 +14,7 @@ import {
     Key
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { SwitchAccountDropdown } from "@/components/dashboard/SwitchAccountDropdown";
 
 export function OwnerSidebar() {
     const pathname = usePathname();
@@ -37,6 +38,9 @@ export function OwnerSidebar() {
                     Edu<span className="text-red-500">Owner</span>
                 </h1>
                 <p className="text-xs text-slate-500 mt-1">Super Admin Panel</p>
+                <div className="mt-4">
+                    <SwitchAccountDropdown currentMode="owner" />
+                </div>
             </div>
 
             <nav className="px-4 space-y-1 pb-20">
@@ -47,8 +51,8 @@ export function OwnerSidebar() {
                             key={item.path}
                             href={item.path}
                             className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${isActive
-                                    ? "bg-red-500/10 text-red-500"
-                                    : "text-slate-400 hover:text-white hover:bg-slate-800"
+                                ? "bg-red-500/10 text-red-500"
+                                : "text-slate-400 hover:text-white hover:bg-slate-800"
                                 }`}
                         >
                             <item.icon size={20} />
