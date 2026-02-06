@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Loader2, Eye, EyeOff, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -14,8 +14,29 @@ export default function LoginPage() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [isMainDomain, setIsMainDomain] = useState(false);
+    const [subdomain, setSubdomain] = useState<string | null>(null);
     const { login } = useAuth();
     const router = useRouter();
+
+    // Check if accessing from main domain or subdomain
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const hostname = window.location.hostname;
+            // Main domains that should NOT allow tenant login
+            const mainDomains = ["eduvera.ve-lora.my.id", "www.eduvera.ve-lora.my.id", "localhost"];
+
+            if (mainDomains.includes(hostname)) {
+                setIsMainDomain(true);
+            } else {
+                // Extract subdomain from hostname like "riyadlulhuda.eduvera.ve-lora.my.id"
+                const parts = hostname.split(".");
+                if (parts.length > 4) { // subdomain.eduvera.ve-lora.my.id
+                    setSubdomain(parts[0]);
+                }
+            }
+        }
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -41,12 +62,54 @@ export default function LoginPage() {
             const message =
                 err.response?.data?.error ||
                 err.userMessage ||
-                "Email atau password salah";
+                "Email atau password salah. Silakan coba lagi.";
             setError(message);
         } finally {
             setLoading(false);
         }
     };
+
+    // Show message if accessing from main domain
+    if (isMainDomain) {
+        return (
+            <div className="min-h-screen flex items-center justify-center p-4">
+                <div className="w-full max-w-md">
+                    <div className="text-center mb-8">
+                        <h1 className="text-3xl font-bold text-white mb-2">
+                            Edu<span className="text-emerald-500">Vera</span>
+                        </h1>
+                    </div>
+                    <div className="bg-slate-900 border border-amber-500/50 rounded-xl p-8 space-y-6">
+                        <div className="flex items-center gap-3 text-amber-400">
+                            <AlertCircle className="w-6 h-6" />
+                            <h2 className="text-lg font-semibold">Akses via Subdomain</h2>
+                        </div>
+                        <p className="text-slate-300">
+                            Halaman login ini hanya dapat diakses melalui subdomain institusi Anda.
+                        </p>
+                        <p className="text-slate-400 text-sm">
+                            Contoh: <code className="bg-slate-800 px-2 py-1 rounded">riyadlulhuda.eduvera.ve-lora.my.id/login</code>
+                        </p>
+                        <div className="border-t border-slate-700 pt-6 space-y-4">
+                            <p className="text-slate-400 text-sm">
+                                Belum punya akun institusi?
+                            </p>
+                            <Link href="/register">
+                                <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
+                                    Daftar Sekarang
+                                </Button>
+                            </Link>
+                            <Link href="/owner/login">
+                                <Button variant="outline" className="w-full border-slate-700 text-slate-300 hover:bg-slate-800">
+                                    Login sebagai Owner
+                                </Button>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4">
