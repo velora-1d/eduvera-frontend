@@ -201,7 +201,7 @@ export default function RegisterPage() {
             });
 
             // Step 4: Confirm registration
-            await onboardingApi.confirm({
+            const confirmRes = await onboardingApi.confirm({
                 tenant_id: tenantId,
                 user_id: userId,
             });
@@ -211,9 +211,12 @@ export default function RegisterPage() {
                 localStorage.removeItem("onboarding_token");
             }
 
-            showToast("Pendaftaran berhasil! Silakan login.", "success");
+            // Get login URL from confirm response or construct from subdomain
+            const loginUrl = confirmRes?.login_url || `https://${formData.subdomain}.eduvera.ve-lora.my.id/login`;
+
+            showToast(`Pendaftaran berhasil! Anda akan diarahkan ke dashboard.`, "success");
             setTimeout(() => {
-                router.push("/login?registered=true");
+                window.location.href = loginUrl;
             }, 1500);
         } catch (error: any) {
             console.error("Registration failed", error);
