@@ -220,6 +220,11 @@ export const ownerApi = {
         const response = await api.post("/api/v1/owner/content", data);
         return response.data;
     },
+
+    impersonate: async (tenantId: string) => {
+        const response = await api.post("/api/v1/owner/impersonate", { tenant_id: tenantId });
+        return response.data;
+    },
 };
 
 // ============ Pesantren API ============
