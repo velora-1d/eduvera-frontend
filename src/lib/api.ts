@@ -13,7 +13,14 @@ const api = axios.create({
 // Add interceptor to include auth token and sandbox tenant header
 api.interceptors.request.use((config) => {
     if (typeof window !== "undefined") {
-        const token = localStorage.getItem("access_token");
+        // Check for normal auth token first
+        let token = localStorage.getItem("access_token");
+
+        // During onboarding, use the onboarding_token if no access_token exists
+        if (!token) {
+            token = localStorage.getItem("onboarding_token");
+        }
+
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }

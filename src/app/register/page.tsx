@@ -158,9 +158,10 @@ export default function RegisterPage() {
     };
 
     const handleSubmit = async () => {
-        if (!validateStep(5)) return;
+        if (!validateStep(4)) return;
         setLoading(true);
         try {
+            // Step 1: Register user
             const registerRes = await onboardingApi.register({
                 name: formData.adminName,
                 email: formData.adminEmail,
@@ -168,37 +169,47 @@ export default function RegisterPage() {
                 password: formData.password,
             });
 
-            const sessionId = registerRes.session_id;
+            const userId = registerRes.user_id;
+            const onboardingToken = registerRes.onboarding_token;
 
-            await onboardingApi.institution({
-                session_id: sessionId,
+            // Store token for subsequent requests
+            if (typeof window !== "undefined" && onboardingToken) {
+                localStorage.setItem("onboarding_token", onboardingToken);
+            }
+
+            // Step 2: Create institution (tenant)
+            const institutionRes = await onboardingApi.institution({
+                user_id: userId,
                 institution_name: formData.institutionName,
                 school_name: formData.schoolName || undefined,
                 pesantren_name: formData.pesantrenName || undefined,
                 school_jenjangs: formData.schoolJenjangs.length > 0 ? formData.schoolJenjangs : undefined,
-                institution_type: formData.planType,
-                plan_type: formData.planType,
-                subscription_tier: formData.subscriptionTier,
-                billing_cycle: formData.billingCycle,
+                institution_type: "hybrid", // All trial users get hybrid
                 address: formData.address,
-            });
-
-            await onboardingApi.subdomain({
-                session_id: sessionId,
                 subdomain: formData.subdomain,
             });
 
-            // Use custom bank name if selected
-            const finalBankName = isCustomBank ? customBankName : formData.bankName;
+            const tenantId = institutionRes.tenant_id;
 
+            // Step 3: Save bank account
+            const finalBankName = isCustomBank ? customBankName : formData.bankName;
             await onboardingApi.bankAccount({
-                session_id: sessionId,
+                tenant_id: tenantId,
                 bank_name: finalBankName,
                 account_number: formData.accountNumber,
                 account_holder: formData.accountHolder,
             });
 
-            await onboardingApi.confirm({ session_id: sessionId });
+            // Step 4: Confirm registration
+            await onboardingApi.confirm({
+                tenant_id: tenantId,
+                user_id: userId,
+            });
+
+            // Clean up temp token
+            if (typeof window !== "undefined") {
+                localStorage.removeItem("onboarding_token");
+            }
 
             showToast("Pendaftaran berhasil! Silakan login.", "success");
             setTimeout(() => {
