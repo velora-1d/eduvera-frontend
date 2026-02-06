@@ -26,7 +26,7 @@ export default function OwnerLoginPage() {
             if (typeof window !== "undefined") {
                 localStorage.setItem("access_token", response.access_token);
                 localStorage.setItem("is_owner", "true");
-                localStorage.setItem("user", JSON.stringify(response.user));
+                localStorage.setItem("auth_user", JSON.stringify(response.user));
             }
 
             router.push("/owner");
