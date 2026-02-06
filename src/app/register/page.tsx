@@ -59,7 +59,7 @@ const initialFormData: FormData = {
 
 // Simplified steps - removed Plan Selection (all users get Hybrid Trial)
 const steps = [
-    { id: 1, title: "Akun Admin", icon: User },
+    { id: 1, title: "Akun Administrator", icon: User },
     { id: 2, title: "Info Lembaga", icon: Building2 }, // Was 3
     { id: 3, title: "Subdomain", icon: Globe },       // Was 4
     { id: 4, title: "Rekening Bank", icon: CreditCard }, // Was 5
