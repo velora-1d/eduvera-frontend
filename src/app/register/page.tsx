@@ -60,9 +60,9 @@ const initialFormData: FormData = {
 // Simplified steps - removed Plan Selection (all users get Hybrid Trial)
 const steps = [
     { id: 1, title: "Akun Admin", icon: User },
-    { id: 2, title: "Info Lembaga", icon: Building2 },
-    { id: 3, title: "Subdomain", icon: Globe },
-    { id: 4, title: "Rekening Bank", icon: CreditCard },
+    { id: 2, title: "Info Lembaga", icon: Building2 }, // Was 3
+    { id: 3, title: "Subdomain", icon: Globe },       // Was 4
+    { id: 4, title: "Rekening Bank", icon: CreditCard }, // Was 5
 ];
 
 
@@ -315,128 +315,8 @@ export default function RegisterPage() {
         </div>
     );
 
-    const renderStep2 = () => (
-        <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-white mb-4">Pilih Paket Langganan</h2>
+    // renderStep2 (Plan Selection) REMOVED
 
-            {/* Plan Type Selection */}
-            <div>
-                <label className="block text-sm text-slate-400 mb-3">Jenis Lembaga</label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {([
-                        { id: "sekolah" as const, title: "Sekolah", desc: "SD, SMP, SMA, SMK", icon: School, color: "blue", payment: "SPP", recommended: false },
-                        { id: "pesantren" as const, title: "Pesantren", desc: "Pondok & Madrasah", icon: BookOpen, color: "emerald", payment: "Syahriah", recommended: false },
-                        { id: "hybrid" as const, title: "Hybrid", desc: "Sekolah + Pesantren", icon: Building2, color: "purple", payment: "SPP & Syahriah", recommended: true },
-                    ]).map((plan) => (
-                        <button
-                            key={plan.id}
-                            type="button"
-                            onClick={() => updateFormData("planType", plan.id)}
-                            className={`relative p-4 rounded-xl border-2 text-left transition-all ${formData.planType === plan.id
-                                ? `border-${plan.color}-500 bg-${plan.color}-500/10`
-                                : "border-slate-700 hover:border-slate-600"
-                                }`}
-                        >
-                            {plan.recommended && (
-                                <span className="absolute -top-2 right-2 bg-purple-500 text-white text-xs px-2 py-0.5 rounded-full">Rekomendasi</span>
-                            )}
-                            <plan.icon className={`w-8 h-8 mb-2 ${formData.planType === plan.id ? `text-${plan.color}-500` : "text-slate-400"}`} />
-                            <h3 className="font-semibold text-white">{plan.title}</h3>
-                            <p className="text-sm text-slate-400">{plan.desc}</p>
-                            <p className="text-xs text-slate-500 mt-1">Pembayaran: {plan.payment}</p>
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {/* Tier Selection */}
-            <div>
-                <label className="block text-sm text-slate-400 mb-3">Tier Langganan</label>
-                <div className="grid grid-cols-2 gap-4">
-                    <button
-                        type="button"
-                        onClick={() => updateFormData("subscriptionTier", "basic")}
-                        className={`p-4 rounded-xl border-2 text-left transition-all ${formData.subscriptionTier === "basic"
-                            ? "border-emerald-500 bg-emerald-500/10"
-                            : "border-slate-700 hover:border-slate-600"
-                            }`}
-                    >
-                        <div className="flex items-center gap-2 mb-2">
-                            <Star className={`w-5 h-5 ${formData.subscriptionTier === "basic" ? "text-emerald-500" : "text-slate-400"}`} />
-                            <h3 className="font-semibold text-white">Basic</h3>
-                        </div>
-                        <p className="text-sm text-slate-400">Pembayaran {formData.planType === "sekolah" ? "SPP" : formData.planType === "pesantren" ? "Syahriah" : "SPP/Syahriah"} manual</p>
-                        <p className="text-xs text-slate-500 mt-1">Admin approve setiap pembayaran</p>
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => updateFormData("subscriptionTier", "premium")}
-                        className={`relative p-4 rounded-xl border-2 text-left transition-all ${formData.subscriptionTier === "premium"
-                            ? "border-amber-500 bg-amber-500/10"
-                            : "border-slate-700 hover:border-slate-600"
-                            }`}
-                    >
-                        <span className="absolute -top-2 right-2 bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
-                            <Zap className="w-3 h-3" /> Auto
-                        </span>
-                        <div className="flex items-center gap-2 mb-2">
-                            <Zap className={`w-5 h-5 ${formData.subscriptionTier === "premium" ? "text-amber-500" : "text-slate-400"}`} />
-                            <h3 className="font-semibold text-white">Premium</h3>
-                        </div>
-                        <p className="text-sm text-slate-400">Payment Gateway otomatis</p>
-                        <p className="text-xs text-slate-500 mt-1">GoPay, OVO, DANA, Transfer, QRIS</p>
-                    </button>
-                </div>
-            </div>
-
-            {/* Billing Cycle */}
-            <div>
-                <label className="block text-sm text-slate-400 mb-3">Periode Pembayaran</label>
-                <div className="grid grid-cols-2 gap-4">
-                    <button
-                        type="button"
-                        onClick={() => updateFormData("billingCycle", "monthly")}
-                        className={`p-4 rounded-xl border-2 text-center transition-all ${formData.billingCycle === "monthly"
-                            ? "border-emerald-500 bg-emerald-500/10"
-                            : "border-slate-700 hover:border-slate-600"
-                            }`}
-                    >
-                        <h3 className="font-semibold text-white">Bulanan</h3>
-                        <p className="text-lg font-bold text-emerald-500 mt-1">{formatPrice(pricing[formData.planType][formData.subscriptionTier].monthly)}</p>
-                        <p className="text-xs text-slate-500">/bulan</p>
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => updateFormData("billingCycle", "annual")}
-                        className={`relative p-4 rounded-xl border-2 text-center transition-all ${formData.billingCycle === "annual"
-                            ? "border-emerald-500 bg-emerald-500/10"
-                            : "border-slate-700 hover:border-slate-600"
-                            }`}
-                    >
-                        <span className="absolute -top-2 right-2 bg-emerald-500 text-white text-xs px-2 py-0.5 rounded-full">Hemat 2 Bulan</span>
-                        <h3 className="font-semibold text-white">Tahunan</h3>
-                        <p className="text-lg font-bold text-emerald-500 mt-1">{formatPrice(pricing[formData.planType][formData.subscriptionTier].annual)}</p>
-                        <p className="text-xs text-slate-500">/tahun</p>
-                    </button>
-                </div>
-            </div>
-
-            {/* Summary */}
-            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
-                <h4 className="font-semibold text-white mb-2">Ringkasan Paket</h4>
-                <div className="text-sm space-y-1">
-                    <p className="text-slate-400">Paket: <span className="text-white capitalize">{formData.planType} {formData.subscriptionTier}</span></p>
-                    <p className="text-slate-400">Periode: <span className="text-white">{formData.billingCycle === "monthly" ? "Bulanan" : "Tahunan"}</span></p>
-                    <p className="text-slate-400">Total: <span className="text-emerald-500 font-bold">{formatPrice(getCurrentPrice())}</span></p>
-                    {formData.subscriptionTier === "premium" && (
-                        <p className="text-amber-500 text-xs mt-2 flex items-center gap-1">
-                            <Zap className="w-3 h-3" /> Termasuk Payment Gateway untuk {formData.planType === "sekolah" ? "SPP" : formData.planType === "pesantren" ? "Syahriah" : "SPP & Syahriah"}
-                        </p>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
 
     const renderStep3 = () => (
         <div className="space-y-4">
@@ -697,9 +577,9 @@ export default function RegisterPage() {
     const renderCurrentStep = () => {
         switch (currentStep) {
             case 1: return renderStep1();
-            case 2: return renderStep3(); // Institution (was Step 3)
-            case 3: return renderStep4(); // Subdomain (was Step 4)
-            case 4: return renderStep5(); // Bank Account (was Step 5)
+            case 2: return renderStep3(); // Institution
+            case 3: return renderStep4(); // Subdomain
+            case 4: return renderStep5(); // Bank Account
             default: return null;
         }
     };
