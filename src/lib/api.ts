@@ -201,8 +201,8 @@ export const ownerApi = {
         return response.data;
     },
 
-    rejectDisbursement: async (id: string) => {
-        const response = await api.post(`/api/v1/owner/disbursements/${id}/reject`);
+    rejectDisbursement: async (id: string, reason: string) => {
+        const response = await api.post(`/api/v1/owner/disbursements/${id}/reject`, { reason });
         return response.data;
     },
 
