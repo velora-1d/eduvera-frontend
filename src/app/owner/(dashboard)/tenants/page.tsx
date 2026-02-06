@@ -194,7 +194,7 @@ export default function TenantsPage() {
                                         <td className="px-6 py-4 text-slate-400">{formatDate(tenant.created_at)}</td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
-                                                <Link href={`/owner/tenants/${tenant.id}`}>
+                                                <Link href={`/owner/tenants/view?id=${tenant.id}`}>
                                                     <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
                                                         <Eye className="w-4 h-4" />
                                                     </Button>

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { ownerApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,17 +40,20 @@ interface TenantDetail {
     };
 }
 
-export default function TenantDetailClient() {
-    const params = useParams();
+function TenantDetailContent() {
+    const searchParams = useSearchParams();
+    const id = searchParams.get("id");
     const router = useRouter();
     const [tenant, setTenant] = useState<TenantDetail | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (params.id) {
-            fetchTenant(params.id as string);
+        if (id) {
+            fetchTenant(id);
+        } else {
+            setLoading(false);
         }
-    }, [params.id]);
+    }, [id]);
 
     const fetchTenant = async (id: string) => {
         try {
@@ -115,7 +118,7 @@ export default function TenantDetailClient() {
     if (!tenant) {
         return (
             <div className="text-center py-12">
-                <p className="text-slate-400">Tenant not found</p>
+                <p className="text-slate-400">Tenant not found or ID missing</p>
                 <Link href="/owner/tenants">
                     <Button variant="outline" className="mt-4">
                         <ArrowLeft className="w-4 h-4 mr-2" /> Back to Tenants
@@ -268,5 +271,13 @@ export default function TenantDetailClient() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function TenantDetailPage() {
+    return (
+        <Suspense fallback={<div className="text-center py-12 text-slate-400">Loading...</div>}>
+            <TenantDetailContent />
+        </Suspense>
     );
 }
