@@ -19,7 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Modal } from "@/components/ui/Modal";
+import Modal from "@/components/ui/Modal";
 
 interface NotificationTemplate {
     id: string;
