@@ -54,7 +54,7 @@ export default function TemplatesPage() {
         setLoading(true);
         try {
             const data = await ownerApi.getNotificationTemplates();
-            setTemplates(data || []);
+            setTemplates(data.data || []);
         } catch (error) {
             console.error("Failed to fetch templates", error);
         } finally {

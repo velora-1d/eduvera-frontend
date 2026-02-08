@@ -33,7 +33,7 @@ export default function WhatsAppSettingsPage() {
             const data = await ownerApi.getWhatsAppStatus();
             setStatus(data.status);
             if (data.status === "CONNECTED") {
-                setPhone(data.phone || null);
+                setPhone(data.phone_number || null);
                 setQrCode(null);
                 setPolling(false);
             } else if (data.status === "CONNECTING") {
@@ -69,13 +69,13 @@ export default function WhatsAppSettingsPage() {
         setQrCode(null);
         try {
             const data = await ownerApi.connectWhatsApp();
-            if (data.qr) {
-                setQrCode(data.qr);
+            if (data.qr_code) {
+                setQrCode(data.qr_code);
                 setStatus("CONNECTING");
                 setPolling(true);
             } else if (data.status === "CONNECTED") {
                 setStatus("CONNECTED");
-                setPhone(data.phone);
+                setPhone(data.phone_number);
             }
         } catch (error: any) {
             alert(error.userMessage || "Gagal menghubungkan WhatsApp");
