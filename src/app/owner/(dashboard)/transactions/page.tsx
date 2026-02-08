@@ -2,15 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { ownerApi } from "@/lib/api";
-import { CreditCard, Search, CheckCircle, Clock, XCircle } from "lucide-react";
+import { CreditCard, Search, CheckCircle, Clock, XCircle, RefreshCw, Send, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { showToast } from "@/components/ui/Toast";
 
 interface Transaction {
     id: string;
     tenant_name: string;
     student_name: string;
     amount: number;
-    type: string;
+    payment_type: string;
     status: string;
     created_at: string;
 }
@@ -18,6 +20,8 @@ interface Transaction {
 export default function TransactionsPage() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
+    const [generating, setGenerating] = useState(false);
+    const [broadcasting, setBroadcasting] = useState(false);
     const [search, setSearch] = useState("");
 
     useEffect(() => {
@@ -32,6 +36,35 @@ export default function TransactionsPage() {
             console.error("Failed to fetch transactions", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleGenerateInvoices = async () => {
+        if (!confirm("Generate tagihan otomatis untuk seluruh lembaga?")) return;
+
+        setGenerating(true);
+        try {
+            await ownerApi.generateInvoices();
+            showToast("Proses pembuatan tagihan dimulai di background", "success");
+            fetchTransactions();
+        } catch (error: any) {
+            showToast(error.userMessage || "Gagal membuat tagihan", "error");
+        } finally {
+            setGenerating(false);
+        }
+    };
+
+    const handleBroadcastOverdue = async () => {
+        if (!confirm("Kirim broadcast pengingat tunggakan ke seluruh lembaga?")) return;
+
+        setBroadcasting(true);
+        try {
+            await ownerApi.broadcastOverdue();
+            showToast("Proses broadcast tunggakan dimulai di background", "success");
+        } catch (error: any) {
+            showToast(error.userMessage || "Gagal mengirim broadcast", "error");
+        } finally {
+            setBroadcasting(false);
         }
     };
 
@@ -101,11 +134,34 @@ export default function TransactionsPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-white">Transactions</h2>
-                <div className="text-right">
-                    <p className="text-slate-400 text-sm">Total Revenue</p>
-                    <p className="text-xl font-bold text-emerald-400">{formatCurrency(totalRevenue)}</p>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 className="text-2xl font-bold text-white">Transactions</h2>
+                    <p className="text-slate-400 text-sm">Monitor dan kelola seluruh transaksi lembaga</p>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                    <Button
+                        onClick={handleGenerateInvoices}
+                        disabled={generating}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
+                    >
+                        {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                        Generate Tagihan
+                    </Button>
+                    <Button
+                        onClick={handleBroadcastOverdue}
+                        disabled={broadcasting}
+                        variant="outline"
+                        className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10 gap-2"
+                    >
+                        {broadcasting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                        Broadcast Tunggakan
+                    </Button>
+                    <div className="text-right border-l border-slate-800 pl-4 ml-2">
+                        <p className="text-slate-400 text-xs">Total Revenue</p>
+                        <p className="text-lg font-bold text-emerald-400">{formatCurrency(totalRevenue)}</p>
+                    </div>
                 </div>
             </div>
 
@@ -146,7 +202,7 @@ export default function TransactionsPage() {
                                     <tr key={tx.id} className="border-b border-slate-800 hover:bg-slate-800/50">
                                         <td className="px-6 py-4 text-white">{tx.tenant_name}</td>
                                         <td className="px-6 py-4 text-slate-300">{tx.student_name}</td>
-                                        <td className="px-6 py-4 text-slate-300 capitalize">{tx.type}</td>
+                                        <td className="px-6 py-4 text-slate-300 capitalize">{tx.payment_type}</td>
                                         <td className="px-6 py-4 text-white font-medium">{formatCurrency(tx.amount)}</td>
                                         <td className="px-6 py-4">{getStatusBadge(tx.status)}</td>
                                         <td className="px-6 py-4 text-slate-400">{formatDate(tx.created_at)}</td>

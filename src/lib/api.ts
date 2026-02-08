@@ -272,6 +272,17 @@ export const ownerApi = {
         const response = await api.post(`/api/v1/owner/notification-templates/${id}/test`, data);
         return response.data;
     },
+
+    // Billing Automation
+    generateInvoices: async () => {
+        const response = await api.post("/api/v1/owner/invoices/generate");
+        return response.data;
+    },
+
+    broadcastOverdue: async () => {
+        const response = await api.post("/api/v1/owner/invoices/broadcast");
+        return response.data;
+    },
 };
 
 // ============ Pesantren API ============
