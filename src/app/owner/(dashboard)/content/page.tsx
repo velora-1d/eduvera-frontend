@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { showToast } from "@/components/ui/Toast"; // Using our custom toast
+import ConfirmationDialog from "@/components/ui/ConfirmationDialog";
 import { ownerApi, contentApi } from "@/lib/api";
 
 interface ContentSection {
@@ -38,6 +39,7 @@ export default function ContentPage() {
     const [activeSection, setActiveSection] = useState("landing_hero");
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
 
     // Dynamic data state
     const [data, setData] = useState<any>(null);
@@ -101,7 +103,11 @@ export default function ContentPage() {
         }
     };
 
-    const handleSave = async () => {
+    const handleSaveClick = () => {
+        setIsSaveDialogOpen(true);
+    };
+
+    const confirmSave = async () => {
         setSaving(true);
         try {
             await ownerApi.upsertContent({
@@ -110,6 +116,7 @@ export default function ContentPage() {
                 type: "json"
             });
             showToast("Konten berhasil disimpan", "success");
+            setIsSaveDialogOpen(false);
         } catch (error: any) {
             showToast(error.userMessage || "Gagal menyimpan konten", "error");
         } finally {
@@ -406,7 +413,7 @@ export default function ContentPage() {
                     </div>
                 </div>
                 <Button
-                    onClick={handleSave}
+                    onClick={handleSaveClick}
                     disabled={saving || loading}
                     className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20"
                 >
@@ -425,8 +432,8 @@ export default function ContentPage() {
                                 key={section.id}
                                 onClick={() => setActiveSection(section.id)}
                                 className={`w-full text-left px-4 py-4 rounded-xl transition-all duration-200 flex items-start gap-4 group ${activeSection === section.id
-                                        ? "bg-slate-800 text-emerald-400 ring-1 ring-emerald-500/50 shadow-lg"
-                                        : "bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                                    ? "bg-slate-800 text-emerald-400 ring-1 ring-emerald-500/50 shadow-lg"
+                                    : "bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
                                     }`}
                             >
                                 <Icon className={`w-5 h-5 mt-0.5 ${activeSection === section.id ? "text-emerald-500" : "text-slate-500 group-hover:text-slate-300"}`} />
@@ -464,6 +471,18 @@ export default function ContentPage() {
                         </p>
                     </div>
                 </div>
+
+                <ConfirmationDialog
+                    isOpen={isSaveDialogOpen}
+                    onClose={() => setIsSaveDialogOpen(false)}
+                    onConfirm={confirmSave}
+                    title="Simpan Perubahan?"
+                    description={`Apakah Anda yakin ingin menyimpan perubahan pada seksi "${sections.find(s => s.id === activeSection)?.title}"? Perubahan akan langsung terlihat di landing page.`}
+                    confirmText="Simpan"
+                    cancelText="Batal"
+                    type="success"
+                    loading={saving}
+                />
             </div>
         </div>
     );

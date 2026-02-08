@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { showToast } from "@/components/ui/Toast";
+import ConfirmationDialog from "@/components/ui/ConfirmationDialog";
 
 interface WhatsAppStatus {
     status: string; // "CONNECTED", "DISCONNECTED", "CONNECTING"
@@ -28,6 +29,9 @@ export default function WhatsAppSettingsPage() {
     const [qrCode, setQrCode] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [polling, setPolling] = useState(false);
+
+    // Confirmation Dialog State
+    const [isDisconnectDialogOpen, setIsDisconnectDialogOpen] = useState(false);
 
     const fetchStatus = useCallback(async () => {
         try {
@@ -86,8 +90,10 @@ export default function WhatsAppSettingsPage() {
     };
 
     const handleDisconnect = async () => {
-        if (!confirm("Apakah Anda yakin ingin memutuskan koneksi WhatsApp?")) return;
+        setIsDisconnectDialogOpen(true);
+    };
 
+    const confirmDisconnect = async () => {
         setLoading(true);
         try {
             await ownerApi.disconnectWhatsApp();
@@ -100,6 +106,7 @@ export default function WhatsAppSettingsPage() {
             showToast(error.userMessage || "Gagal memutuskan koneksi WhatsApp", "error");
         } finally {
             setLoading(false);
+            setIsDisconnectDialogOpen(false);
         }
     };
 
@@ -269,6 +276,18 @@ export default function WhatsAppSettingsPage() {
                     </ol>
                 </div>
             </div>
+
+            <ConfirmationDialog
+                isOpen={isDisconnectDialogOpen}
+                onClose={() => setIsDisconnectDialogOpen(false)}
+                onConfirm={confirmDisconnect}
+                title="Putuskan Koneksi WhatsApp?"
+                description="Anda tidak akan menerima notifikasi sistem lagi sampai Anda menghubungkan kembali WhatsApp Anda. Apakah Anda yakin?"
+                confirmText="Ya, Putuskan"
+                cancelText="Batal"
+                type="danger"
+                loading={loading}
+            />
         </div>
     );
 }
