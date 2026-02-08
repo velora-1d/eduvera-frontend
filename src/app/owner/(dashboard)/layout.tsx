@@ -28,6 +28,8 @@ const menuItems = [
     { href: "/owner/content", icon: FileText, label: "Content" },
     { href: "/owner/announcements", icon: Megaphone, label: "Announcements" },
     { href: "/owner/notifications", icon: Bell, label: "Notifications" },
+    { href: "/owner/settings/whatsapp", icon: Shield, label: "WhatsApp" },
+    { href: "/owner/settings/templates", icon: FileText, label: "Templates" },
     { href: "/owner/settings", icon: Settings, label: "Settings" },
 ];
 

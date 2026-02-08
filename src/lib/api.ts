@@ -225,6 +225,53 @@ export const ownerApi = {
         const response = await api.post("/api/v1/owner/impersonate", { tenant_id: tenantId });
         return response.data;
     },
+
+    // WhatsApp Connection
+    getWhatsAppStatus: async () => {
+        const response = await api.get("/api/v1/owner/whatsapp/status");
+        return response.data;
+    },
+
+    connectWhatsApp: async () => {
+        const response = await api.post("/api/v1/owner/whatsapp/connect");
+        return response.data;
+    },
+
+    disconnectWhatsApp: async () => {
+        const response = await api.post("/api/v1/owner/whatsapp/disconnect");
+        return response.data;
+    },
+
+    // Notification Templates
+    getNotificationTemplates: async () => {
+        const response = await api.get("/api/v1/owner/notification-templates");
+        return response.data;
+    },
+
+    getNotificationTemplate: async (id: string) => {
+        const response = await api.get(`/api/v1/owner/notification-templates/${id}`);
+        return response.data;
+    },
+
+    updateNotificationTemplate: async (id: string, data: any) => {
+        const response = await api.put(`/api/v1/owner/notification-templates/${id}`, data);
+        return response.data;
+    },
+
+    createNotificationTemplate: async (data: any) => {
+        const response = await api.post("/api/v1/owner/notification-templates", data);
+        return response.data;
+    },
+
+    deleteNotificationTemplate: async (id: string) => {
+        const response = await api.delete(`/api/v1/owner/notification-templates/${id}`);
+        return response.data;
+    },
+
+    testNotificationTemplate: async (id: string, data: { phone: string; variables: any }) => {
+        const response = await api.post(`/api/v1/owner/notification-templates/${id}/test`, data);
+        return response.data;
+    },
 };
 
 // ============ Pesantren API ============
