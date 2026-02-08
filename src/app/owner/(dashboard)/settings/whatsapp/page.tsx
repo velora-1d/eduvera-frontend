@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { showToast } from "@/components/ui/Toast";
 
 interface WhatsAppStatus {
     status: string; // "CONNECTED", "DISCONNECTED", "CONNECTING"
@@ -78,7 +79,7 @@ export default function WhatsAppSettingsPage() {
                 setPhone(data.phone_number);
             }
         } catch (error: any) {
-            alert(error.userMessage || "Gagal menghubungkan WhatsApp");
+            showToast(error.userMessage || "Gagal menghubungkan WhatsApp", "error");
         } finally {
             setLoading(false);
         }
@@ -94,8 +95,9 @@ export default function WhatsAppSettingsPage() {
             setPhone(null);
             setQrCode(null);
             setPolling(false);
+            showToast("WhatsApp berhasil diputuskan", "success");
         } catch (error: any) {
-            alert(error.userMessage || "Gagal memutuskan koneksi WhatsApp");
+            showToast(error.userMessage || "Gagal memutuskan koneksi WhatsApp", "error");
         } finally {
             setLoading(false);
         }

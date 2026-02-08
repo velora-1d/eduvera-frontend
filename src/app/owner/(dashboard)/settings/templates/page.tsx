@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Modal from "@/components/ui/Modal";
+import { showToast } from "@/components/ui/Toast";
 
 interface NotificationTemplate {
     id: string;
@@ -83,9 +84,10 @@ export default function TemplatesPage() {
             });
             fetchTemplates();
             setIsEditModalOpen(false);
-            // showToast("Template berhasil diupdate", "success");
+            setIsEditModalOpen(false);
+            showToast("Template berhasil diupdate", "success");
         } catch (error: any) {
-            alert(error.userMessage || "Gagal mengupdate template");
+            showToast(error.userMessage || "Gagal mengupdate template", "error");
         } finally {
             setSaving(false);
         }
@@ -116,7 +118,7 @@ export default function TemplatesPage() {
             });
             setTestResult(res.data);
         } catch (error: any) {
-            alert(error.userMessage || "Gagal mengetes template");
+            showToast(error.userMessage || "Gagal mengetes template", "error");
         } finally {
             setTestLoading(false);
         }

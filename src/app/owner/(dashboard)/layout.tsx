@@ -18,6 +18,7 @@ import {
     Shield,
     Megaphone,
 } from "lucide-react";
+import { ToastContainer } from "@/components/ui/Toast";
 
 const menuItems = [
     { href: "/owner", icon: LayoutDashboard, label: "Dashboard" },
@@ -161,6 +162,7 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
                     {children}
                 </main>
             </div>
+            <ToastContainer />
         </div>
     );
 }
