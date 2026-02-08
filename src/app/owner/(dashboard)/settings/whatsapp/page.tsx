@@ -191,8 +191,7 @@ export default function WhatsAppSettingsPage() {
                                 <Button
                                     onClick={handleDisconnect}
                                     disabled={loading}
-                                    variant="outline"
-                                    className="w-full border-red-500/50 text-red-500 hover:bg-red-500/10 hover:text-red-500"
+                                    className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 hover:border-red-500/40 transition-all font-medium"
                                 >
                                     {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <LogOut className="w-4 h-4 mr-2" />}
                                     Putuskan Koneksi
@@ -201,10 +200,10 @@ export default function WhatsAppSettingsPage() {
                                 <Button
                                     onClick={handleConnect}
                                     disabled={loading || status === "CONNECTING"}
-                                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium shadow-lg shadow-emerald-500/20 transition-all"
                                 >
                                     {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Scan className="w-4 h-4 mr-2" />}
-                                    {status === "CONNECTING" ? "Menunggu Scand..." : "Hubungkan WhatsApp"}
+                                    {status === "CONNECTING" ? "Menunggu Scan..." : "Hubungkan WhatsApp"}
                                 </Button>
                             )}
                         </div>

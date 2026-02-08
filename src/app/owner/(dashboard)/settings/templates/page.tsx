@@ -189,23 +189,21 @@ export default function TemplatesPage() {
                                 </p>
                             </div>
 
-                            <div className="flex items-center gap-2 mt-auto">
+                            <div className="flex items-center gap-2 mt-auto pt-2 border-t border-slate-800/50">
                                 <Button
-                                    variant="outline"
                                     size="sm"
-                                    className="flex-1 border-slate-800 text-slate-300 hover:bg-slate-800"
+                                    className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-600 transition-all font-medium"
                                     onClick={() => handleEdit(template)}
                                 >
-                                    <Edit3 className="w-4 h-4 mr-2" />
+                                    <Edit3 className="w-4 h-4 mr-2 text-emerald-400" />
                                     Edit
                                 </Button>
                                 <Button
-                                    variant="outline"
                                     size="sm"
-                                    className="border-slate-800 text-slate-300 hover:bg-slate-800"
+                                    className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-600 transition-all"
                                     onClick={() => handleOpenTest(template)}
                                 >
-                                    <Send className="w-4 h-4" />
+                                    <Send className="w-4 h-4 text-blue-400" />
                                 </Button>
                             </div>
                         </Card>
